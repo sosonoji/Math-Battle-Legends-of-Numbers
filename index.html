@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚔️ MathBattle 1v1</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Kanit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<!-- Firebase SDK v10 compat -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 /* ===== RESET ===== */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -525,18 +528,124 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <script>
 /* ============================================================
-   AUTH & PLAYER REGISTRY
+   AUTH & PLAYER REGISTRY — FIREBASE REALTIME DATABASE
+   วิธีสร้าง Firebase (ฟรี):
+   1. ไปที่ https://console.firebase.google.com
+   2. กด "Add project" → ตั้งชื่อ → กด Continue ไปเรื่อยๆ
+   3. เลือก "Realtime Database" → "Create database" → เลือก Asia → "Start in test mode"
+   4. กด ⚙️ Project settings → "Your apps" → </> Web → ลงทะเบียน
+   5. คัดลอก firebaseConfig มาวางแทน YOUR_XXX ด้านล่าง
 ============================================================ */
-// Storage keys
-const PLAYERS_KEY = 'mb_players';   // { name -> { pass, stars, wins, losses, created } }
-const SESSION_KEY = 'mb_session';   // { name }
+const SESSION_KEY = 'mb_session';
 const LB_KEY      = 'mb_lb';
 const STARS_KEY   = 'mb_stars';
 
-function loadPlayers(){ try{return JSON.parse(localStorage.getItem(PLAYERS_KEY)||'{}')}catch(e){return{}} }
-function savePlayers(p){ localStorage.setItem(PLAYERS_KEY,JSON.stringify(p)) }
+/* 🔥 วางค่า Firebase config ของคุณตรงนี้ */
+const FIREBASE_CONFIG = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+let FB_DB = null;
+(function initFirebase(){
+  try{
+    if(!firebase||!FIREBASE_CONFIG.apiKey||FIREBASE_CONFIG.apiKey==="YOUR_API_KEY"){
+      console.warn("⚠️ Firebase ยังไม่ได้ตั้งค่า — ใช้ localStorage แทน");return;
+    }
+    const app = firebase.initializeApp(FIREBASE_CONFIG);
+    FB_DB = firebase.database(app);
+    console.log("✅ Firebase connected!");
+  }catch(e){console.warn("Firebase init error:",e.message)}
+})();
+
+/* --- localStorage fallback --- */
+const PLAYERS_LOCAL = 'mb_players_v2';
+function _localPlayers(){ try{return JSON.parse(localStorage.getItem(PLAYERS_LOCAL)||'{}')}catch(e){return{}} }
+function _saveLocalPlayers(d){ localStorage.setItem(PLAYERS_LOCAL,JSON.stringify(d)) }
 function loadSession(){ try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch(e){return null} }
 function saveSession(s){ localStorage.setItem(SESSION_KEY,JSON.stringify(s)) }
+
+/* --- Core Firebase/Local read-write --- */
+async function fbGetPlayer(name){
+  const key=name.toLowerCase();
+  if(FB_DB){
+    try{const s=await FB_DB.ref('players/'+key).get();return s.exists()?s.val():null}catch(e){}
+  }
+  return _localPlayers()[key]||null;
+}
+async function fbSetPlayer(name,data){
+  const key=name.toLowerCase();
+  if(FB_DB){
+    try{await FB_DB.ref('players/'+key).set({name,...data});return}catch(e){}
+  }
+  const all=_localPlayers();all[key]={name,...data};_saveLocalPlayers(all);
+}
+async function fbUpdatePlayer(name,updates){
+  const key=name.toLowerCase();
+  if(FB_DB){
+    try{await FB_DB.ref('players/'+key).update(updates);return}catch(e){}
+  }
+  const all=_localPlayers();if(all[key])Object.assign(all[key],updates);_saveLocalPlayers(all);
+}
+async function fbGetAllPlayers(){
+  if(FB_DB){
+    try{
+      const s=await FB_DB.ref('players').get();
+      if(!s.exists())return[];
+      const r=[];s.forEach(c=>r.push(c.val()));
+      return r.filter(p=>p.name!==G.myName).sort((a,b)=>(b.stars||0)-(a.stars||0));
+    }catch(e){}
+  }
+  return Object.values(_localPlayers()).filter(p=>p.name!==G.myName).sort((a,b)=>(b.stars||0)-(a.stars||0));
+}
+async function fbSearchPlayers(q){
+  const ql=q.toLowerCase();
+  if(FB_DB){
+    try{
+      const s=await FB_DB.ref('players').get();
+      if(!s.exists())return[];
+      const r=[];
+      s.forEach(c=>{const p=c.val();if(p.name!==G.myName&&p.name.toLowerCase().includes(ql))r.push(p)});
+      return r.sort((a,b)=>(b.stars||0)-(a.stars||0)).slice(0,10);
+    }catch(e){}
+  }
+  return Object.values(_localPlayers()).filter(p=>p.name!==G.myName&&p.name.toLowerCase().includes(ql));
+}
+
+/* Online Presence */
+const ONLINE_TTL=90000;
+async function fbSetOnline(name){
+  if(!FB_DB||!name)return;
+  try{
+    const ref=FB_DB.ref('online/'+name.toLowerCase());
+    await ref.set({name,ts:Date.now()});
+    ref.onDisconnect().remove();
+  }catch(e){}
+}
+function fbWatchOnline(cb){
+  if(!FB_DB){cb([]);return}
+  FB_DB.ref('online').on('value',snap=>{
+    const now=Date.now(),list=[];
+    snap.forEach(c=>{const p=c.val();if(p.name!==G.myName&&(now-(p.ts||0))<ONLINE_TTL)list.push(p)});
+    cb(list.sort((a,b)=>(b.stars||0)-(a.stars||0)));
+  });
+}
+function fbWatchLB(cb){
+  if(!FB_DB){
+    fbGetAllPlayers().then(all=>cb(all.slice(0,10)));return;
+  }
+  FB_DB.ref('players').orderByChild('stars').limitToLast(10).on('value',snap=>{
+    const r=[];snap.forEach(c=>r.push(c.val()));cb(r.reverse());
+  });
+}
+/* Keep player's own loadPlayers() shim for legacy code */
+function loadPlayers(){ return _localPlayers(); }
+function savePlayers(p){ _saveLocalPlayers(p); }
 
 // Simple hash (not secure, but fine for a game)
 function hashPass(s){ let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h.toString(16) }
@@ -558,7 +667,7 @@ function showLoginMsg(msg,isOk){
   else{e.textContent=msg;e.style.display='block';o.style.display='none'}
 }
 
-function doRegister(){
+async function doRegister(){
   const name=(document.getElementById('regName').value||'').trim();
   const pass=document.getElementById('regPass').value;
   const pass2=document.getElementById('regPass2').value;
@@ -566,26 +675,24 @@ function doRegister(){
   if(name.length<2){showLoginMsg('ชื่อต้องมีอย่างน้อย 2 ตัวอักษร');return}
   if(!pass||pass.length<4){showLoginMsg('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร');return}
   if(pass!==pass2){showLoginMsg('รหัสผ่านไม่ตรงกัน');return}
-  const players=loadPlayers();
-  const key=name.toLowerCase();
-  if(Object.keys(players).find(k=>k===key)){showLoginMsg('ชื่อนี้ถูกใช้แล้ว กรุณาเลือกชื่ออื่น');return}
-  players[key]={name,pass:hashPass(pass),stars:0,wins:0,losses:0,created:Date.now()};
-  savePlayers(players);
-  showLoginMsg('สมัครสำเร็จ! กรุณาเข้าสู่ระบบ',true);
+  showLoginMsg('⏳ กำลังสมัคร...', true);
+  const existing = await fbGetPlayer(name);
+  if(existing){showLoginMsg('ชื่อนี้ถูกใช้แล้ว กรุณาเลือกชื่ออื่น');return}
+  await fbSetPlayer(name,{pass:hashPass(pass),stars:0,wins:0,losses:0,created:Date.now()});
+  showLoginMsg('✅ สมัครสำเร็จ! กรุณาเข้าสู่ระบบ',true);
   setTimeout(()=>switchLoginTab('login',null),1200);
   document.getElementById('loginName').value=name;
 }
 
-function doLogin(){
+async function doLogin(){
   const name=(document.getElementById('loginName').value||'').trim();
   const pass=document.getElementById('loginPass').value;
   if(!name){showLoginMsg('กรุณาใส่ชื่อผู้เล่น');return}
   if(!pass){showLoginMsg('กรุณาใส่รหัสผ่าน');return}
-  const players=loadPlayers();
-  const key=name.toLowerCase();
-  const p=Object.values(players).find(p=>p.name.toLowerCase()===key);
-  if(!p){showLoginMsg('ไม่พบชื่อผู้เล่นนี้');return}
-  if(p.pass!==hashPass(pass)){showLoginMsg('รหัสผ่านไม่ถูกต้อง');return}
+  showLoginMsg('⏳ กำลังเข้าสู่ระบบ...', true);
+  const p = await fbGetPlayer(name);
+  if(!p){showLoginMsg('❌ ไม่พบชื่อผู้เล่นนี้');return}
+  if(p.pass!==hashPass(pass)){showLoginMsg('❌ รหัสผ่านไม่ถูกต้อง');return}
   saveSession({name:p.name});
   afterLogin(p.name);
 }
@@ -602,8 +709,18 @@ function afterLogin(name){
   G.myName=name;
   loadData();
   updateHomeProfile();
-  renderOnline();
-  renderLB();
+  // แสดงตัวเป็น online ใน Firebase
+  fbSetOnline(name);
+  // heartbeat ทุก 30 วิ เพื่อแสดงว่ายัง online อยู่
+  setInterval(()=>fbSetOnline(name), 30000);
+  // ฟัง realtime online players
+  fbWatchOnline(list=>{
+    renderOnlineList(list);
+  });
+  // ฟัง realtime leaderboard
+  fbWatchLB(list=>{
+    renderLBList(list);
+  });
   showScreen('screen-home');
 }
 
@@ -657,13 +774,16 @@ function saveData(){
 function addStars(name,d){
   if(!name||G.isBot)return;
   G.stars[name]=Math.max(0,(G.stars[name]||0)+d);
-  // sync to players registry
-  const players=loadPlayers();
-  const key=name.toLowerCase();
-  const pk=Object.keys(players).find(k=>k===key);
-  if(pk){players[pk].stars=G.stars[name];if(d>0)players[pk].wins=(players[pk].wins||0)+1;else if(d<0)players[pk].losses=(players[pk].losses||0)+1;savePlayers(players)}
+  const newStars=G.stars[name];
+  // Sync to Firebase (async, fire-and-forget)
+  fbGetPlayer(name).then(p=>{
+    if(!p)return;
+    const wins=(p.wins||0)+(d>0?1:0);
+    const losses=(p.losses||0)+(d<0?1:0);
+    fbUpdatePlayer(name,{stars:newStars,wins,losses});
+  });
   const idx=G.lb.findIndex(x=>x.name===name);
-  if(idx>=0)G.lb[idx].stars=G.stars[name];else G.lb.push({name,stars:G.stars[name]});
+  if(idx>=0)G.lb[idx].stars=newStars;else G.lb.push({name,stars:newStars});
   G.lb.sort((a,b)=>b.stars-a.stars);
   if(G.lb.length>50)G.lb.splice(50);
   saveData();
@@ -706,10 +826,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Check existing session
   const sess=loadSession();
   if(sess&&sess.name){
-    const players=loadPlayers();
-    const pk=Object.keys(players).find(k=>k===sess.name.toLowerCase());
-    if(pk){afterLogin(players[pk].name);return}
-    else saveSession(null);
+    // Verify session against Firebase
+    fbGetPlayer(sess.name).then(p=>{
+      if(p){afterLogin(p.name)}
+      else{saveSession(null);showScreen('screen-login')}
+    }).catch(()=>{
+      // Offline fallback
+      afterLogin(sess.name);
+    });
+    return;
   }
   showScreen('screen-login');
   document.addEventListener('keydown',e=>{
@@ -741,33 +866,60 @@ function switchTab(tab,e){
 /* ============================================================
    ONLINE PLAYERS — from registry
 ============================================================ */
-function renderOnline(){
-  const players=loadPlayers();
+/* renderOnline ตอนนี้แยกเป็น 2 ส่วน:
+   renderOnlineList = แสดง realtime online (เรียกจาก fbWatchOnline)
+   renderOnline     = แสดงผู้เล่นทั้งหมดจาก Firebase (fallback)
+*/
+function renderOnlineList(list){
   const el=document.getElementById('onlinePlayers');
-  const all=Object.values(players).filter(p=>p.name!==G.myName).sort((a,b)=>(b.stars||0)-(a.stars||0));
-  if(!all.length){el.innerHTML=`<div class="tmuted" style="padding:8px 0;text-align:center">ยังไม่มีผู้เล่นคนอื่น<br><small>ชวนเพื่อนมาสมัครสมาชิก!</small></div>`;return}
-  el.innerHTML=all.slice(0,8).map(p=>`
+  if(!el)return;
+  if(!list||!list.length){
+    el.innerHTML=`<div class="tmuted" style="padding:8px 0;text-align:center">ยังไม่มีผู้เล่นออนไลน์ขณะนี้<br><small>ชวนเพื่อนมาเล่นด้วยกัน!</small></div>`;
+    return;
+  }
+  el.innerHTML=list.map(p=>`
     <div class="fi">
       <span>
-        <span class="dot-reg"></span>
+        <span class="dot-on" style="background:var(--green)"></span>
         <span>
           <span class="fn">${esc(p.name)}</span>
-          <div class="fstars">⭐ ${p.stars||0} ดาว | ชนะ ${p.wins||0} แพ้ ${p.losses||0}</div>
+          <div class="fstars">🟢 ออนไลน์ | ⭐ ${p.stars||0} ดาว</div>
         </span>
       </span>
       <button class="btn btn-b" style="width:auto;padding:6px 14px;font-size:12px" onclick="inviteP('${esc(p.name)}')">เชิญ ▶</button>
     </div>`).join('');
 }
+async function renderOnline(){
+  const el=document.getElementById('onlinePlayers');
+  if(!el)return;
+  el.innerHTML=`<div class="tmuted" style="padding:8px 0;text-align:center">⏳ กำลังโหลด...</div>`;
+  const all=await fbGetAllPlayers();
+  renderOnlineList(all);
+}
 
-function searchFriend(v){
+let _searchTimer=null;
+async function searchFriend(v){
   const r=document.getElementById('searchResults');
   const q=(v||'').trim();
   if(!q){r.innerHTML='';return}
-  const players=loadPlayers();
-  const m=Object.values(players).filter(p=>p.name!==G.myName&&(p.name.toLowerCase().includes(q.toLowerCase())));
-  if(!m.length){r.innerHTML=`<div class="tmuted" style="padding:8px 0">ไม่พบผู้เล่น "${esc(q)}"</div>`;return}
-  r.innerHTML=m.map(p=>`<div class="fi"><span><span class="dot-reg"></span><span><span class="fn">${esc(p.name)}</span><div class="fstars">⭐ ${p.stars||0} ดาว</div></span></span>
-    <button class="btn btn-g" style="width:auto;padding:6px 14px;font-size:12px" onclick="inviteP('${esc(p.name)}')">เชิญ ▶</button></div>`).join('');
+  // debounce 400ms
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(async()=>{
+    r.innerHTML=`<div class="tmuted" style="padding:4px 0">⏳ กำลังค้นหา...</div>`;
+    const m=await fbSearchPlayers(q);
+    if(!m.length){r.innerHTML=`<div class="tmuted" style="padding:8px 0">❌ ไม่พบผู้เล่น "${esc(q)}"</div>`;return}
+    r.innerHTML=m.map(p=>`
+      <div class="fi">
+        <span>
+          <span class="dot-reg"></span>
+          <span>
+            <span class="fn">${esc(p.name)}</span>
+            <div class="fstars">⭐ ${p.stars||0} ดาว | ชนะ ${p.wins||0} แพ้ ${p.losses||0}</div>
+          </span>
+        </span>
+        <button class="btn btn-g" style="width:auto;padding:6px 14px;font-size:12px" onclick="inviteP('${esc(p.name)}')">เชิญ ▶</button>
+      </div>`).join('');
+  },400);
 }
 
 function inviteP(name){
@@ -809,9 +961,24 @@ function selLevel(lv,el){
 /* ============================================================
    LEADERBOARD
 ============================================================ */
-function renderLB(){
+function renderLBList(all){
   const el=document.getElementById('lbList');if(!el)return;
-  // Build LB from player registry
+  if(!all||!all.length){el.innerHTML=`<div class="tmuted tc" style="padding:20px">ยังไม่มีข้อมูล</div>`;return}
+  el.innerHTML=all.slice(0,10).map((p,i)=>{
+    const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const m=i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
+    return`<div class="lbi"><div class="lbr ${rc}">${m}</div><div class="lbn">${esc(p.name)}</div><div class="lbs">⭐ ${p.stars||0}</div></div>`;
+  }).join('');
+}
+async function renderLB(){
+  const el=document.getElementById('lbList');if(!el)return;
+  el.innerHTML=`<div class="tmuted tc" style="padding:20px">⏳ กำลังโหลด...</div>`;
+  const all=await fbGetAllPlayers();
+  renderLBList(all);
+}
+// (legacy shim — now driven by fbWatchLB realtime listener)
+function renderLB_legacy(){
+  const el=document.getElementById('lbList');if(!el)return;
   const players=loadPlayers();
   const all=Object.values(players).sort((a,b)=>(b.stars||0)-(a.stars||0)).slice(0,10);
   if(!all.length){el.innerHTML=`<div class="tmuted tc" style="padding:20px">ยังไม่มีข้อมูล</div>`;return}
