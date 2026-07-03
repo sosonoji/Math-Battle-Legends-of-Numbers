@@ -5,24 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚔️ MathBattle 1v1</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Kanit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-<!-- Firebase SDK v10 compat -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
-/* ===== RESET ===== */
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔️ MathBattle 1v1</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Kanit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-<!-- Firebase SDK v10 compat -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<style>
-/* ===== RESET ===== */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2234;--card:#161d2e;
@@ -36,16 +21,13 @@ html{scroll-behavior:smooth}
 body{font-family:'Prompt',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.5}
 h1,h2,h3{font-family:'Kanit',sans-serif}
 
-/* ===== STARS ===== */
 .stars-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) infinite}
 @keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.8}}
 
-/* ===== SCREENS ===== */
 .screen{display:none;min-height:100vh;flex-direction:column;align-items:center}
 .screen.active{display:flex}
 
-/* ===== LOGIN SCREEN ===== */
 #screen-login{justify-content:center;padding:20px;background:linear-gradient(135deg,#0a0e1a,#0f1729,#0a0e1a)}
 .login-wrap{width:100%;max-width:400px;position:relative;z-index:1}
 .login-logo{text-align:center;margin-bottom:28px}
@@ -59,31 +41,25 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .login-field label{display:block;font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
 .login-err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);border-radius:var(--r8);padding:10px 13px;font-size:13px;margin-bottom:14px;display:none}
 .login-ok{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--green);border-radius:var(--r8);padding:10px 13px;font-size:13px;margin-bottom:14px;display:none}
-.profile-bar{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r12);padding:10px 14px;margin-bottom:14px}
-.profile-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0}
-.profile-info{flex:1;min-width:0}
-.profile-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.profile-stars{font-size:12px;color:var(--gold)}
-.logout-btn{background:none;border:1px solid var(--border);border-radius:var(--r8);color:var(--text2);font-size:11px;padding:5px 10px;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .2s;white-space:nowrap}
-.logout-btn:hover{border-color:var(--red);color:var(--red)}
 
-/* ===== HOME ===== */
 #screen-home{justify-content:center;padding:20px;background:linear-gradient(135deg,#0a0e1a,#0f1729,#0a0e1a)}
 .home-logo{text-align:center;margin-bottom:28px;position:relative;z-index:1}
 .home-logo h1{font-size:clamp(32px,6vw,56px);background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:8px}
 .home-logo p{color:var(--text2);font-size:13px;letter-spacing:2px;text-transform:uppercase}
 .menu-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:22px;width:100%;max-width:420px;position:relative;z-index:1;box-shadow:var(--shadow)}
 .home-profile{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r12);padding:10px 14px;margin-bottom:16px}
+.profile-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0}
 .home-profile .profile-avatar{width:34px;height:34px;font-size:16px}
+.profile-info{flex:1;min-width:0}
+.profile-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-stars{font-size:12px;color:var(--gold)}
+.logout-btn{background:none;border:1px solid var(--border);border-radius:var(--r8);color:var(--text2);font-size:11px;padding:5px 10px;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .2s;white-space:nowrap}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
 
-/* ===== INPUTS ===== */
-.name-sec{margin-bottom:18px}
-.name-sec label{display:block;font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
 .inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:11px 13px;color:var(--text);font-family:'Prompt',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
 .inp:focus{border-color:var(--accent)}
 .inp::placeholder{color:var(--text2)}
 
-/* ===== BUTTONS ===== */
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r12);border:none;font-family:'Prompt',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
 .btn-p{background:linear-gradient(135deg,var(--accent),var(--acdk));color:#000}
@@ -99,12 +75,10 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .btn-pu{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff}
 .btn-pu:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,.4)}
 
-/* ===== TABS ===== */
 .tabs{display:flex;gap:6px;margin-bottom:16px}
 .tab{flex:1;padding:9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);cursor:pointer;text-align:center;font-size:13px;color:var(--text2);font-family:'Prompt',sans-serif;transition:all .2s}
 .tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
 
-/* ===== HELPERS ===== */
 .mtitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
 .div{height:1px;background:var(--border);margin:14px 0}
 .flex-gap{display:flex;gap:10px}
@@ -112,7 +86,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .tc{text-align:center}
 .tmuted{color:var(--text2)}
 
-/* ===== ONLINE LIST ===== */
 .fsearch{display:flex;gap:8px;margin-bottom:10px}
 .fsearch input{flex:1}
 .fi{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg3);border-radius:var(--r8);margin-bottom:6px;border:1px solid var(--border)}
@@ -121,7 +94,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .dot-on{width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:6px;display:inline-block}
 .dot-reg{width:8px;height:8px;background:var(--blue);border-radius:50%;margin-right:6px;display:inline-block}
 
-/* ===== SETUP ===== */
 .setup{width:100%;max-width:480px;position:relative;z-index:1;padding:20px}
 .stitle{font-size:20px;font-weight:700;margin-bottom:20px;text-align:center;font-family:'Kanit',sans-serif}
 .back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--text2);cursor:pointer;font-family:'Prompt',sans-serif;font-size:13px;padding:8px 0;margin-bottom:14px}
@@ -140,29 +112,17 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .lbtn .ln{font-weight:700;font-size:14px}
 .lbtn .ld{font-size:11px;color:var(--text2);margin-top:2px}
 
-/* ===== LEADERBOARD ===== */
 .lbi{display:flex;align-items:center;gap:12px;padding:11px;background:var(--bg3);border-radius:var(--r8);margin-bottom:8px;border:1px solid var(--border)}
 .lbr{font-size:17px;font-weight:900;width:30px;text-align:center;color:var(--text2)}
 .lbr.gold{color:#fbbf24}.lbr.silver{color:#94a3b8}.lbr.bronze{color:#92400e}
 .lbn{flex:1;font-weight:600}
 .lbs{color:var(--gold);font-size:13px}
 
-/* ===== MODAL ===== */
 .mover{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
 .mbox{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;max-width:400px;width:90%;animation:popIn .3s ease;max-height:90vh;overflow-y:auto}
 .mtit{font-size:18px;font-weight:700;margin-bottom:4px;text-align:center}
 .msub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:18px}
 
-/* ===== ABILITY PICK ===== */
-.apgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
-.apc{border:2px solid var(--border);border-radius:var(--r12);background:var(--bg3);padding:13px 8px;cursor:pointer;text-align:center;transition:all .2s}
-.apc:hover{border-color:var(--purple);transform:translateY(-4px)}
-.apc.sel{border-color:var(--purple);background:rgba(139,92,246,.12)}
-.apc .api{font-size:26px;margin-bottom:7px}
-.apc .apn{font-size:11px;font-weight:700;margin-bottom:4px}
-.apc .apd{font-size:10px;color:var(--text2);line-height:1.4}
-
-/* ===== GAME ===== */
 .glayout{display:flex;flex-direction:column;width:100%;min-height:100vh}
 .ghdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
 .phdr{display:flex;align-items:center;gap:10px}
@@ -173,7 +133,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .heart.empty{opacity:.2;filter:grayscale(1)}
 .vstag{background:var(--red);color:#fff;padding:4px 12px;border-radius:20px;font-weight:900;font-size:13px}
 
-/* ===== BOARD ===== */
 .bsec{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;min-height:280px}
 .rinfo{text-align:center;margin-bottom:14px}
 .rbadge{background:var(--accent);color:#000;padding:4px 16px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:5px}
@@ -183,26 +142,15 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .qcard.rev{border-color:var(--accent);background:rgba(245,158,11,.05)}
 .qtxt{font-size:clamp(24px,5vw,40px);font-weight:900;font-family:'Kanit',sans-serif;letter-spacing:2px;min-height:52px;display:flex;align-items:center;justify-content:center}
 .qhid{font-size:38px;color:var(--text2);letter-spacing:8px}
-.blurn{filter:blur(6px);user-select:none}
 
-/* ===== ANSWERS ===== */
 .ansec{display:flex;gap:20px;justify-content:center;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap}
-.albl{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
-.ainp{width:140px;background:var(--bg3);border:2px solid var(--border);border-radius:var(--r8);padding:11px 12px;color:var(--text);font-family:'Prompt',sans-serif;font-size:22px;font-weight:700;text-align:center;outline:none;transition:all .2s;display:block;margin-bottom:7px}
-.ainp:focus{border-color:var(--accent)}
-.ainp:disabled{opacity:.4}
-.vsdiv{font-size:24px;color:var(--text2);padding-top:28px}
-.asbtn{width:140px;padding:10px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:var(--r8);color:#fff;font-family:'Prompt',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:block}
-.asbtn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(16,185,129,.4)}
-.asbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .chgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:340px;margin:0 auto}
-.chbtn{padding:13px;border-radius:var(--r8);border:2px solid var(--border);background:var(--bg3);cursor:pointer;font-family:'Prompt',sans-serif;font-size:16px;font-weight:700;color:var(--text);transition:all .2s}
-.chbtn:hover{border-color:var(--accent);background:rgba(245,158,11,.1)}
+.chbtn{padding:16px;border-radius:var(--r8);border:2px solid var(--border);background:var(--bg3);cursor:pointer;font-family:'Prompt',sans-serif;font-size:18px;font-weight:700;color:var(--text);transition:all .2s}
+.chbtn:hover:not(:disabled){border-color:var(--accent);background:rgba(245,158,11,.1)}
 .chbtn.cor{border-color:var(--green);background:rgba(16,185,129,.15);color:var(--green)}
 .chbtn.wrg{border-color:var(--red);background:rgba(239,68,68,.15);color:var(--red)}
-.chbtn:disabled{cursor:default}
+.chbtn:disabled{cursor:default;opacity:.7}
 
-/* ===== HAND CARDS ===== */
 .hsec{padding:11px 14px;border-top:1px solid var(--border)}
 .hp1{background:var(--bg2)}
 .hhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -213,28 +161,17 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .hcard:hover{transform:translateY(-8px);border-color:var(--accent)}
 .hcard.sel{border-color:var(--accent);transform:translateY(-8px);box-shadow:0 8px 20px rgba(245,158,11,.4)}
 .hcard.used{opacity:.25;pointer-events:none}
+.hcard.locked{opacity:.4;pointer-events:none;filter:grayscale(.6)}
 .cnum{font-size:11px;font-weight:700;color:var(--accent);margin-top:4px}
 .confbar{padding:12px 16px;background:var(--bg2);border-top:1px solid var(--border);text-align:center}
 .confbar .btn{max-width:300px;margin:0 auto}
 
-/* ===== ABILITY CARDS ===== */
-.csec{padding:11px 14px;background:var(--bg2);border-top:1px solid var(--border)}
-.abrow{display:flex;justify-content:space-between}
-.crow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.abcard{width:70px;min-height:88px;border-radius:var(--r8);border:2px solid var(--border);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:4px;transition:all .2s;text-align:center;flex-shrink:0}
-.abcard:hover{transform:translateY(-6px);border-color:var(--purple)}
-.abcard.used{opacity:.2;pointer-events:none;filter:grayscale(1)}
-.abcard .ai{font-size:22px}
-.abcard .an{font-size:9px;color:var(--text2);line-height:1.2;font-weight:600}
-
-/* ===== BOT ===== */
 .botthink{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);margin:8px 0;justify-content:center}
 .d{width:6px;height:6px;background:var(--text2);border-radius:50%;animation:db .8s ease infinite}
 .d:nth-child(2){animation-delay:.15s}
 .d:nth-child(3){animation-delay:.3s}
 @keyframes db{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
-/* ===== STATUS ===== */
 .smsg{padding:8px 14px;border-radius:var(--r8);font-size:13px;font-weight:600;margin:6px 0;animation:fs .3s ease}
 .sw{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
 .sl{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
@@ -242,15 +179,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .sa{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
 @keyframes fs{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 
-/* ===== ROUND RESULT ===== */
-.rrover{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
-.rrbox{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:28px;text-align:center;max-width:320px;width:90%;animation:popIn .3s ease}
-.rico{font-size:52px;margin-bottom:10px}
-.rtit{font-size:26px;font-weight:900;font-family:'Kanit',sans-serif;margin-bottom:6px}
-.rsub{color:var(--text2);font-size:13px;margin-bottom:10px}
-.rdet{font-size:13px;color:var(--text2);margin:8px 0}
-
-/* ===== GAME OVER ===== */
 #screen-gameover{justify-content:center;padding:20px}
 .goscreen{text-align:center;padding:24px;position:relative;z-index:1;width:100%;max-width:400px}
 .goico{font-size:60px;margin-bottom:14px;animation:bounce 1s ease infinite}
@@ -258,23 +186,23 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .gost{font-size:26px;margin:12px 0;letter-spacing:4px}
 .godesc{color:var(--text2);font-size:14px;margin-bottom:18px}
 .gostats{background:var(--card);border-radius:var(--r12);padding:16px;margin-bottom:18px;text-align:left;border:1px solid var(--border)}
-.fzmsg{text-align:center;padding:7px;color:var(--blue);font-weight:700;font-size:14px;margin:4px 0}
 
-/* ===== ANIMS ===== */
+/* รอผู้เล่นอื่นเลือกโหมด */
+.waitbox{text-align:center;padding:40px 20px;max-width:420px}
+.waitbox .wico{font-size:50px;margin-bottom:16px;animation:bounce 1.4s ease infinite}
+.waitbox h3{font-size:18px;margin-bottom:8px;font-family:'Kanit',sans-serif}
+.waitbox p{color:var(--text2);font-size:13px}
+.waitdots{display:flex;gap:6px;justify-content:center;margin-top:16px}
+
 @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
-/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* ===== RESPONSIVE ===== */
 @media(max-width:480px){
   .ansec{gap:12px}
-  .ainp{width:120px;font-size:18px}
-  .asbtn{width:120px}
-  .abcard{width:60px}
   .hcard{width:58px;height:76px}
 }
 </style>
@@ -283,7 +211,7 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <div class="stars-bg" id="starsBg"></div>
 
-<!-- ===== LOGIN SCREEN ===== -->
+<!-- ===== LOGIN ===== -->
 <div class="screen active" id="screen-login">
   <div class="login-wrap">
     <div class="login-logo">
@@ -297,7 +225,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
         <button class="login-tab active" onclick="switchLoginTab('login',this)">🔑 เข้าสู่ระบบ</button>
         <button class="login-tab" onclick="switchLoginTab('register',this)">✨ สมัครสมาชิก</button>
       </div>
-      <!-- Login Form -->
       <div id="loginForm">
         <div class="login-field">
           <label>ชื่อผู้เล่น</label>
@@ -310,7 +237,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
         <button class="btn btn-p" onclick="doLogin()">เข้าสู่ระบบ ▶</button>
         <div style="margin-top:12px;text-align:center;font-size:12px;color:var(--text2)">ยังไม่มีบัญชี? <span style="color:var(--accent);cursor:pointer" onclick="switchLoginTab('register',null)">สมัครเลย</span></div>
       </div>
-      <!-- Register Form -->
       <div id="registerForm" style="display:none">
         <div class="login-field">
           <label>ชื่อผู้เล่น (แสดงในเกม)</label>
@@ -338,7 +264,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
     <p>สนามแข่งคณิตศาสตร์ 1v1</p>
   </div>
   <div class="menu-box">
-    <!-- Profile bar -->
     <div class="home-profile" id="homeProfile">
       <div class="profile-avatar" id="homeAvatar">?</div>
       <div class="profile-info">
@@ -360,7 +285,7 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
       </div>
       <div id="searchResults"></div>
       <div class="div"></div>
-      <div class="mtitle">ผู้เล่นที่ลงทะเบียนทั้งหมด</div>
+      <div class="mtitle">ผู้เล่นที่ออนไลน์</div>
       <div id="onlinePlayers"></div>
     </div>
     <div id="tab-bot" style="display:none">
@@ -379,7 +304,7 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
   </div>
 </div>
 
-<!-- ===== TOPIC ===== -->
+<!-- ===== TOPIC (เฉพาะ host / bot mode) ===== -->
 <div class="screen" id="screen-topic">
   <div class="setup">
     <button class="back-btn" onclick="showScreen('screen-home')">← กลับ</button>
@@ -396,7 +321,7 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
   </div>
 </div>
 
-<!-- ===== LEVEL ===== -->
+<!-- ===== LEVEL (เฉพาะ host / bot mode) ===== -->
 <div class="screen" id="screen-level">
   <div class="setup">
     <button class="back-btn" onclick="showScreen('screen-topic')">← กลับ</button>
@@ -411,25 +336,13 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
   </div>
 </div>
 
-<!-- ===== MODAL: ABILITY PICK ===== -->
-<div class="mover" id="apModal" style="display:none">
-  <div class="mbox">
-    <div class="mtit">🃏 เลือกการ์ดความสามารถ</div>
-    <div class="msub" id="apSub">เลือก 1 ใบจาก 3 ใบ</div>
-    <div class="apgrid" id="apGrid"></div>
-    <button class="btn btn-pu" id="apConfirm" onclick="confirmAbPick()" style="opacity:.5" disabled>ยืนยันเลือก</button>
-  </div>
-</div>
-
-<!-- ===== MODAL: SWAP ===== -->
-<div class="mover" id="swapModal" style="display:none">
-  <div class="mbox">
-    <div class="mtit">🔄 สลับโจทย์?</div>
-    <div class="msub">ต้องการสลับโจทย์กับฝ่ายตรงข้ามไหม?</div>
-    <div class="flex-gap mt16">
-      <button class="btn btn-r" onclick="confirmSwap(true)">สลับ ✅</button>
-      <button class="btn btn-s" onclick="confirmSwap(false)">ไม่สลับ ❌</button>
-    </div>
+<!-- ===== รอผู้เล่นอื่นเลือกโหมด (เฉพาะ guest) ===== -->
+<div class="screen" id="screen-waitmode">
+  <div class="waitbox">
+    <div class="wico">⏳</div>
+    <h3 id="waitModeTitle">รอผู้เล่นเลือกโหมดเกม...</h3>
+    <p>ผู้ชวนกำลังเลือกหัวข้อและระดับความยาก กรุณารอสักครู่</p>
+    <div class="waitdots"><div class="d"></div><div class="d"></div><div class="d"></div></div>
   </div>
 </div>
 
@@ -458,69 +371,28 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
     <div class="bsec">
       <div class="rinfo">
         <div class="rbadge" id="phaseBadge">เลือกการ์ดโจทย์</div>
-        <div class="pdesc" id="phaseDesc">แต่ละฝ่ายเลือก 1 ใบจากมือ</div>
+        <div class="pdesc" id="phaseDesc">แต่ละฝ่ายเลือก 1 ใบจากมือของตัวเอง</div>
       </div>
       <div class="qdis">
         <div class="qcard" id="qCard">
           <div class="qtxt" id="qText"><span class="qhid">? ? ?</span></div>
         </div>
-        <div id="botArea" style="display:none">
-          <div class="botthink"><div class="d"></div><div class="d"></div><div class="d"></div><span>บอทกำลังคิด...</span></div>
-        </div>
       </div>
       <div id="ansSec" style="display:none">
-        <div class="ansec">
-          <div>
-            <div class="albl" id="p1AnsLbl">P1</div>
-            <input type="number" class="ainp" id="p1Ans" placeholder="?" onkeydown="if(event.key==='Enter')submitAns(1)">
-            <button class="asbtn" id="p1Btn" onclick="submitAns(1)">ยืนยัน</button>
-          </div>
-          <div class="vsdiv">—</div>
-          <div>
-            <div class="albl" id="p2AnsLbl">P2</div>
-            <input type="number" class="ainp" id="p2Ans" placeholder="?" onkeydown="if(event.key==='Enter')submitAns(2)">
-            <button class="asbtn" id="p2Btn" onclick="submitAns(2)">ยืนยัน</button>
-          </div>
-        </div>
-        <div id="mcWrap" style="display:none;margin-top:12px">
-          <div class="chgrid" id="chGrid"></div>
-        </div>
+        <div class="chgrid" id="chGrid"></div>
       </div>
     </div>
     <div class="hsec hp1" id="p1HSec">
-      <div class="hhdr"><div class="clbl">🃏 <span id="p1HL">P1</span> — การ์ดโจทย์</div><div class="hhint">เลือก 1 ใบ</div></div>
+      <div class="hhdr"><div class="clbl">🃏 <span id="p1HL">P1</span> — การ์ดโจทย์</div><div class="hhint" id="p1Hint">เลือก 1 ใบ</div></div>
       <div class="hcards" id="p1HCards"></div>
     </div>
     <div class="hsec" id="p2HSec">
-      <div class="hhdr"><div class="clbl">🃏 <span id="p2HL">P2</span> — การ์ดโจทย์</div><div class="hhint">เลือก 1 ใบ</div></div>
+      <div class="hhdr"><div class="clbl">🃏 <span id="p2HL">P2</span> — การ์ดโจทย์</div><div class="hhint" id="p2Hint">เลือก 1 ใบ</div></div>
       <div class="hcards" id="p2HCards"></div>
     </div>
     <div id="confBar" style="display:none" class="confbar">
-      <button class="btn btn-g" onclick="confirmCardSel()">✅ ยืนยันการ์ดที่เลือก</button>
+      <button class="btn btn-g" id="confBtn" onclick="confirmCardSel()">✅ ยืนยันการ์ดที่เลือก</button>
     </div>
-    <div class="csec">
-      <div class="abrow">
-        <div>
-          <div class="clbl">🌟 <span id="p1AL">P1</span> การ์ดพิเศษ</div>
-          <div class="crow" id="p1AbCards"></div>
-        </div>
-        <div style="text-align:right">
-          <div class="clbl">🌟 <span id="p2AL">P2</span> การ์ดพิเศษ</div>
-          <div class="crow" id="p2AbCards" style="justify-content:flex-end"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== ROUND RESULT ===== -->
-<div class="rrover" id="rrOver" style="display:none">
-  <div class="rrbox">
-    <div class="rico" id="rIcon">🏆</div>
-    <div class="rtit" id="rTitle">ชนะ!</div>
-    <div class="rsub" id="rSub"></div>
-    <div class="rdet" id="rDet"></div>
-    <button class="btn btn-p mt16" onclick="nextRound()">ถัดไป ▶</button>
   </div>
 </div>
 
@@ -540,57 +412,38 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 </div>
 
 <script>
-// ==========================================
-// 1. ตั้งค่าเชื่อมต่อฐานข้อมูล Firebase ของคุณ
-// ==========================================
-const firebaseConfig = {
-    databaseURL: "https://mathbattle-ac082-default-rtdb.firebaseio.com"
-};
-
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+/* ==========================================================
+   ตั้งค่า Firebase
+========================================================== */
+const firebaseConfig = { databaseURL: "https://mathbattle-ac082-default-rtdb.firebaseio.com" };
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// ตัวแปรควบคุมระบบเกม
+/* ==========================================================
+   STATE
+========================================================== */
 let G = {
-  state: 'home',
-  myName: '',
-  opName: '',
-  isBot: false,
-  isHost: false, 
+  myName: '', opName: '',
+  isBot: false, isHost: false,
   roomId: '',
-  p1Hp: 3, p2Hp: 3,
-  p1Score: 0, p2Score: 0,
+  p1Hp: 5, p2Hp: 5,
+  round: 1,
   curQ: null,
-  p1Ans: null, p2Ans: null,
-  p1Ms: 0, p2Ms: 0,
-  timerInterval: null,
-  startMs: 0,
-  hasAnswered: false 
+  hasAnswered: false,
+  roundStartMs: 0,
+  topic: null, level: null,
+  p1Cards: [], p2Cards: [],
+  p1Sel: null, p2Sel: null,
+  myConfirmed: false,
+  roomRef: null,
+  lastQId: null
 };
+let selTopic_ = null, selLevel_ = null, selBotLv_ = null;
+let G_inviteRef = null;
 
-const screens = {
-  home: document.getElementById('screen-home'),
-  match: document.getElementById('screen-match'),
-  game: document.getElementById('screen-game'),
-  result: document.getElementById('screen-result')
-};
-
-function switchScreen(s){
-  // รองรับทั้ง screen เดิม และ screen ใหม่ที่เพิ่มมา
-  document.querySelectorAll('.screen').forEach(div => div.classList.remove('active'));
-  // ลอง map เดิมก่อน
-  const mapped = {
-    home: 'screen-home',
-    match: 'screen-match',
-    game: 'screen-game',
-    result: 'screen-gameover'
-  };
-  const targetId = mapped[s] || s;
-  const target = document.getElementById(targetId);
-  if(target) target.classList.add('active');
-  G.state = s;
+function esc(str){
+  if(!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(div => div.classList.remove('active'));
@@ -598,359 +451,20 @@ function showScreen(id){
   if(t) t.classList.add('active');
   window.scrollTo(0,0);
 }
-
-function esc(str){
-  if(!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ==========================================
-// 2. ระบบออนไลน์ ค้นหาผู้เล่นคนอื่น (Matchmaking)
-// ==========================================
-function startMatchmaking() {
-  const nameInput = document.getElementById('usernameInput').value.trim();
-  G.myName = nameInput || "Player_" + Math.floor(Math.random() * 1000);
-  
-  // บันทึกชื่อผู้เล่นคนนี้ไว้ในเครื่องชั่วคราวขณะเล่นเกม
-  sessionStorage.setItem('current_username', G.myName);
-  
-  switchScreen('match'); 
-  document.getElementById('matchText').textContent = "กำลังค้นหาคู่แข่งออนไลน์...";
-  
-  const playersRef = database.ref('queue');
-  
-  const myQueueRef = playersRef.push({
-    name: G.myName,
-    status: "waiting",
-    roomId: ""
-  });
-
-  // บันทึกคีย์คิวปัจจุบันไว้เคลียร์ตอนรีเฟรชหน้าเว็บ
-  sessionStorage.setItem('my_queue_key', myQueueRef.key);
-  myQueueRef.onDisconnect().remove();
-
-  playersRef.once('value', (snapshot) => {
-    let matched = false;
-    snapshot.forEach((child) => {
-      const oppKey = child.key;
-      const oppData = child.val();
-
-      if (oppKey !== myQueueRef.key && oppData.status === "waiting" && !matched) {
-        matched = true;
-        const newRoomId = "room_" + Math.random().toString(36).substring(2, 9);
-        G.isHost = true; 
-
-        database.ref('queue/' + oppKey).update({ status: "matched", roomId: newRoomId });
-        myQueueRef.update({ status: "matched", roomId: newRoomId });
-        
-        setTimeout(() => {
-          setupOnlineRoom(newRoomId, G.myName, oppData.name);
-          myQueueRef.remove();
-          sessionStorage.removeItem('my_queue_key');
-        }, 500);
-      }
-    });
-  });
-
-  myQueueRef.child('roomId').on('value', (snapshot) => {
-    const rId = snapshot.val();
-    if (rId && !G.isHost) {
-      database.ref('rooms/' + rId + '/p1Name').once('value', (nameSnap) => {
-        setupOnlineRoom(rId, nameSnap.val(), G.myName);
-        myQueueRef.off(); 
-        myQueueRef.remove(); 
-        sessionStorage.removeItem('my_queue_key');
-      });
-    }
-  });
-}
-
-function setupOnlineRoom(roomId, p1Name, p2Name) {
-  G.roomId = roomId;
-  G.isBot = false;
-  
-  if (G.isHost) {
-    G.myName = p1Name; G.opName = p2Name;
-    database.ref('rooms/' + roomId).set({
-      p1Name: p1Name, p2Name: p2Name,
-      p1Hp: 3, p2Hp: 3,
-      p1Score: 0, p2Score: 0,
-      question: { text: "", ans: 0 },
-      action: "playing"
-    });
-  } else {
-    G.myName = p2Name; G.opName = p1Name;
+function createStars(){
+  const box = document.getElementById('starsBg');
+  if(!box) return;
+  let html='';
+  for(let i=0;i<60;i++){
+    const x=Math.random()*100, y=Math.random()*100, d=(Math.random()*3+2).toFixed(2);
+    html+=`<div class="star" style="left:${x}%;top:${y}%;--d:${d}s"></div>`;
   }
-
-  document.getElementById('p1NameTxt').textContent = p1Name;
-  document.getElementById('p2NameTxt').textContent = p2Name;
-  
-  document.getElementById('botActionBlock').style.display = 'none';
-  document.getElementById('botArea').style.display = 'none';
-  document.getElementById('p1HSec').style.display = '';
-  document.getElementById('p2HSec').style.display = '';
-
-  switchScreen('game');
-  initGameSession();
-  listenToOnlineRoom();
+  box.innerHTML = html;
 }
 
-function initGameSession() {
-  G.p1Hp = 3; G.p2Hp = 3; G.p1Score = 0; G.p2Score = 0;
-  drawHearts('p1', 3); drawHearts('p2', 3);
-  document.getElementById('p1Score').textContent = '0';
-  document.getElementById('p2Score').textContent = '0';
-  
-  if (G.isHost) {
-    generateAndSendQuestion();
-  }
-}
-
-// ==========================================
-// 3. ระบบสุ่มคำถามและส่งออนไลน์
-// ==========================================
-function generateAndSendQuestion() {
-  const mode = document.querySelector('.mode-btn.active')?.dataset.mode || 'normal';
-  let num1, num2, op, ans;
-
-  if (mode === 'easy') {
-    op = Math.random() > 0.5 ? '+' : '-';
-    if (op === '+') {
-      num1 = Math.floor(Math.random() * 20) + 1;
-      num2 = Math.floor(Math.random() * 20) + 1;
-      ans = num1 + num2;
-    } else {
-      num1 = Math.floor(Math.random() * 20) + 1;
-      num2 = Math.floor(Math.random() * num1) + 1;
-      ans = num1 - num2;
-    }
-  } else if (mode === 'hard') {
-    const ops = ['+', '-', '*'];
-    op = ops[Math.floor(Math.random() * ops.length)];
-    if (op === '+') {
-      num1 = Math.floor(Math.random() * 100) + 10;
-      num2 = Math.floor(Math.random() * 100) + 10;
-      ans = num1 + num2;
-    } else if (op === '-') {
-      num1 = Math.floor(Math.random() * 100) + 10;
-      num2 = Math.floor(Math.random() * num1) + 1;
-      ans = num1 - num2;
-    } else {
-      num1 = Math.floor(Math.random() * 12) + 2;
-      num2 = Math.floor(Math.random() * 12) + 2;
-      ans = num1 * num2;
-    }
-  } else {
-    const ops = ['+', '-'];
-    op = ops[Math.floor(Math.random() * ops.length)];
-    if (op === '+') {
-      num1 = Math.floor(Math.random() * 50) + 1;
-      num2 = Math.floor(Math.random() * 50) + 1;
-      ans = num1 + num2;
-    } else {
-      num1 = Math.floor(Math.random() * 50) + 1;
-      num2 = Math.floor(Math.random() * num1) + 1;
-      ans = num1 - num2;
-    }
-  }
-
-  database.ref('rooms/' + G.roomId).update({
-    p1Result: null,
-    p2Result: null,
-    action: "playing",
-    question: {
-      text: `${num1} ${op} ${num2} = ?`,
-      ans: ans,
-      qId: Math.random().toString(36).substring(2, 9)
-    }
-  });
-}
-
-function listenToOnlineRoom() {
-  const roomRef = database.ref('rooms/' + G.roomId);
-
-  roomRef.child('question').on('value', (snapshot) => {
-    const q = snapshot.val();
-    if (q && q.text) {
-      G.curQ = q;
-      G.hasAnswered = false; 
-      document.getElementById('qText').textContent = q.text;
-      generateChoices(q.ans); 
-      startRoundTimer();
-    }
-  });
-
-  roomRef.on('value', (snapshot) => {
-    const room = snapshot.val();
-    if (!room) return;
-    
-    G.p1Hp = room.p1Hp; G.p2Hp = room.p2Hp;
-    G.p1Score = room.p1Score; G.p2Score = room.p2Score;
-    
-    drawHearts('p1', G.p1Hp); drawHearts('p2', G.p2Hp);
-    document.getElementById('p1Score').textContent = G.p1Score;
-    document.getElementById('p2Score').textContent = G.p2Score;
-
-    if (G.p1Hp <= 0 || G.p2Hp <= 0) {
-      endGameOnline(roomRef);
-      return;
-    }
-
-    if (room.action === "playing" && room.p1Result && room.p2Result) {
-      roomRef.child('action').set("calculating"); 
-      processRoundResults(room.p1Result, room.p2Result, roomRef);
-    }
-  });
-}
-
-function generateChoices(correctAns) {
-  const area = document.getElementById('choicesArea');
-  area.innerHTML = '';
-  const set = new Set([correctAns]);
-  while (set.size < 4) {
-    const dev = Math.floor(Math.random() * 15) - 7;
-    const c = correctAns + (dev === 0 ? 3 : dev);
-    if (c >= 0) set.add(c);
-  }
-  const arr = Array.from(set).sort(() => Math.random() - 0.5);
-  arr.forEach(val => {
-    const b = document.createElement('button');
-    b.className = 'choice-btn';
-    b.textContent = val;
-    b.onclick = () => handleAnswerSelection(val, b); 
-    area.appendChild(b);
-  });
-}
-
-function startRoundTimer() {
-  clearInterval(G.timerInterval);
-  const bar = document.getElementById('timerBar');
-  bar.style.width = '100%';
-  G.startMs = Date.now();
-  const limit = 10000;
-  G.timerInterval = setInterval(() => {
-    const elapsed = Date.now() - G.startMs;
-    const pct = Math.max(0, ((limit - elapsed) / limit) * 100);
-    bar.style.width = pct + '%';
-    if (elapsed >= limit) {
-      clearInterval(G.timerInterval);
-      if (!G.hasAnswered) {
-        handleAnswerSelection(null, null); 
-      }
-    }
-  }, 50);
-}
-
-function handleAnswerSelection(chosenValue, clickedButton) {
-  if (G.hasAnswered) return; 
-  G.hasAnswered = true;
-  
-  clearInterval(G.timerInterval);
-  const duration = Date.now() - G.startMs;
-  const isCorrect = (chosenValue === G.curQ.ans);
-
-  if (clickedButton) {
-    clickedButton.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
-  }
-
-  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-
-  const myRole = G.isHost ? 'p1' : 'p2';
-  database.ref('rooms/' + G.roomId + '/' + myRole + 'Result').set({
-    correct: isCorrect,
-    timeMs: duration
-  });
-}
-
-function processRoundResults(p1Res, p2Res, roomRef) {
-  let p1HpEffect = G.p1Hp, p2HpEffect = G.p2Hp;
-  let p1ScoreEffect = G.p1Score, p2ScoreEffect = G.p2Score;
-
-  if (p1Res.correct && p2Res.correct) {
-    if (p1Res.timeMs < p2Res.timeMs) {
-      p2HpEffect--; p1ScoreEffect += 10;
-    } else {
-      p1HpEffect--; p2ScoreEffect += 10;
-    }
-  } else if (p1Res.correct) {
-    p2HpEffect--; p1ScoreEffect += 10;
-  } else if (p2Res.correct) {
-    p1HpEffect--; p2ScoreEffect += 10;
-  } else {
-    p1HpEffect--; p2HpEffect--;
-  }
-
-  if (G.isHost) {
-    database.ref('rooms/' + G.roomId).update({
-      p1Hp: Math.max(0, p1HpEffect),
-      p2Hp: Math.max(0, p2HpEffect),
-      p1Score: p1ScoreEffect,
-      p2Score: p2ScoreEffect
-    });
-    
-    setTimeout(() => {
-      if (p1HpEffect > 0 && p2HpEffect > 0) {
-        generateAndSendQuestion();
-      }
-    }, 1500);
-  }
-}
-
-function drawHearts(player, hp) {
-  const container = document.getElementById(player + 'Hearts');
-  if(!container) return;
-  container.innerHTML = '';
-  for(let i=0; i<3; i++) {
-    container.innerHTML += i < hp ? '<span class="heart active">❤️</span>' : '<span class="heart">🖤</span>';
-  }
-}
-
-function cancelMatchmaking() {
-  switchScreen('home');
-  database.ref('queue').orderByChild('name').equalTo(G.myName).once('value', (snap) => {
-    snap.forEach(child => child.ref.remove());
-  });
-  sessionStorage.clear();
-}
-
-function endGameOnline(roomRef) {
-  if(G.timerInterval) clearInterval(G.timerInterval);
-  roomRef.off(); 
-  switchScreen('result');
-  
-  const p1 = G.myName, p2 = G.opName;
-  let icon = '🤝', title = 'เสมอ!', sub = 'จบการแข่งขัน';
-
-  if (G.p1Hp <= 0 && G.p2Hp <= 0) {
-    title = 'เสมอ! เลือบหมดพร้อมกัน';
-  } else if (G.isHost && G.p1Hp > 0) {
-    icon = '🏅'; title = 'คุณชนะ!'; sub = `คะแนนของคุณ: ${G.p1Score}`;
-  } else if (!G.isHost && G.p2Hp > 0) {
-    icon = '🏅'; title = 'คุณชนะ!'; sub = `คะแนนของคุณ: ${G.p2Score}`;
-  } else {
-    icon = '💀'; title = 'คุณแพ้!'; sub = 'พยายามใหม่อีกครั้งนะ';
-  }
-
-  document.getElementById('rIcon').textContent = icon;
-  document.getElementById('rTitle').textContent = title;
-  document.getElementById('rSub').textContent = sub;
-  document.getElementById('rDet').innerHTML = `คะแนนรวมทั้งหมด <br> ${p1}: ${G.p1Score} แต้ม | ${p2}: ${G.p2Score} แต้ม`;
-  
-  sessionStorage.clear(); // ล้างความจำเมื่อเกมจบ
-}
-
-function startBotGame() {
-  alert("โหมดเล่นกับบอทกำลังปิดปรับปรุงชั่วคราวเพื่อรองรับระบบออนไลน์เต็มรูปแบบ!");
-}
-
-// 👑 [ส่วนสำคัญที่สุด] บังคับให้เริ่มหน้าแรกและเคลียร์ความจำทุกครั้งที่เปิด/รีเฟรชเว็บ
-/* ============================================================
-   ตัวแปรสำหรับระบบเชิญ
-============================================================ */
-let G_inviteRef = null;  // Firebase ref สำหรับฟัง invite ของตัวเอง
-let selTopic_ = null, selLevel_ = null, selBotLv_ = null;
-
-/* --- ฟังก์ชันหลักหน้า Login/Register (ถ้ายังไม่มี) --- */
+/* ==========================================================
+   LOGIN / REGISTER
+========================================================== */
 function hashPass(s){ let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h.toString(16) }
 
 function switchLoginTab(tab, el){
@@ -993,14 +507,11 @@ async function doLogin(){
   const p = snap.val();
   if(p.pass!==hashPass(pass)){showLoginMsg('❌ รหัสผ่านไม่ถูกต้อง');return}
   G.myName = p.name;
-  // บันทึก online presence
   const onRef = database.ref('online/'+p.name.toLowerCase());
   await onRef.set({name:p.name,stars:p.stars||0,ts:Date.now()});
   onRef.onDisconnect().remove();
   setInterval(()=>onRef.update({ts:Date.now()}),30000);
-  // ฟัง invite ที่มาถึงตัวเอง
   watchMyInvites();
-  // โหลดหน้าหลัก
   updateHomeProfile(p);
   renderOnline();
   renderLB();
@@ -1008,7 +519,7 @@ async function doLogin(){
 }
 function doLogout(){
   if(G_inviteRef) G_inviteRef.off();
-  database.ref('online/'+G.myName.toLowerCase()).remove();
+  if(G.myName) database.ref('online/'+G.myName.toLowerCase()).remove();
   G.myName='';
   showScreen('screen-login');
 }
@@ -1022,11 +533,16 @@ function updateHomeProfile(p){
   if(es)es.textContent='⭐ '+(stars||0)+' ดาว';
   if(ea)ea.textContent=name.charAt(0).toUpperCase();
 }
-function goHome(){showScreen('screen-home');renderOnline();renderLB()}
+function goHome(){
+  cleanupGameListeners();
+  showScreen('screen-home');
+  renderOnline();
+  renderLB();
+}
 
-/* ============================================================
+/* ==========================================================
    TABS
-============================================================ */
+========================================================== */
 function switchTab(tab,e){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   e?.currentTarget?.classList.add('active');
@@ -1035,9 +551,9 @@ function switchTab(tab,e){
   if(tab==='online')renderOnline();
 }
 
-/* ============================================================
-   ONLINE PLAYERS — Firebase realtime
-============================================================ */
+/* ==========================================================
+   ONLINE PLAYER LIST / SEARCH
+========================================================== */
 async function renderOnline(){
   const el=document.getElementById('onlinePlayers');if(!el)return;
   el.innerHTML='<div class="tmuted" style="padding:8px;text-align:center">⏳ กำลังโหลด...</div>';
@@ -1054,10 +570,6 @@ async function renderOnline(){
       </div>`).join('');
   }catch(e){el.innerHTML='<div class="tmuted" style="padding:8px">โหลดไม่ได้</div>'}
 }
-
-/* ============================================================
-   SEARCH
-============================================================ */
 let _searchTimer=null;
 async function searchFriend(v){
   const r=document.getElementById('searchResults');
@@ -1080,9 +592,9 @@ async function searchFriend(v){
   },400);
 }
 
-/* ============================================================
+/* ==========================================================
    LEADERBOARD
-============================================================ */
+========================================================== */
 async function renderLB(){
   const el=document.getElementById('lbList');if(!el)return;
   el.innerHTML='<div class="tmuted tc" style="padding:16px">⏳ กำลังโหลด...</div>';
@@ -1100,44 +612,35 @@ async function renderLB(){
   }catch(e){el.innerHTML='<div class="tmuted tc">โหลดไม่ได้</div>'}
 }
 
-/* ============================================================
-   INVITE SYSTEM — ส่งคำเชิญผ่าน Firebase
-============================================================ */
+/* ==========================================================
+   INVITE SYSTEM
+   room.status: 'waiting' -> 'choosing_mode' -> 'choosing_cards' -> 'playing'
+========================================================== */
 async function inviteP(opponentName){
   if(!G.myName){alert('กรุณาเข้าสู่ระบบก่อน');return}
-  // สร้าง room
   const roomId = 'room_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
   G.roomId = roomId;
   G.isHost = true;
   G.opName = opponentName;
   G.isBot = false;
 
-  // เขียน invite ให้อีกฝ่าย
   await database.ref('invites/'+opponentName.toLowerCase()).set({
-    from: G.myName,
-    roomId: roomId,
-    ts: Date.now()
+    from: G.myName, roomId: roomId, ts: Date.now()
   });
 
-  // เขียน room เตรียมรอ
   await database.ref('rooms/'+roomId).set({
-    p1Name: G.myName,
-    p2Name: opponentName,
-    status: 'waiting',    // waiting → topic → playing
-    p1Ready: false,
-    p2Ready: false,
+    p1Name: G.myName, p2Name: opponentName,
+    status: 'choosing_mode',
     p1Hp: 5, p2Hp: 5,
-    p1Score: 0, p2Score: 0,
     topic: null, level: null,
     ts: Date.now()
   });
 
-  // ไปหน้าเลือก topic
+  selTopic_ = null; selLevel_ = null;
+  resetTopicLevelUI();
   showScreen('screen-topic');
-  showStatus(`📨 ส่งคำเชิญถึง ${esc(opponentName)} แล้ว! เลือกหัวข้อรอได้เลย`, 'si');
 }
 
-/* --- ฟัง invite ที่มาถึงตัวเอง (realtime) --- */
 function watchMyInvites(){
   if(!G.myName)return;
   if(G_inviteRef) G_inviteRef.off();
@@ -1145,15 +648,11 @@ function watchMyInvites(){
   G_inviteRef.on('value', snap=>{
     const inv = snap.val();
     if(!inv||!inv.from||!inv.roomId) return;
-    // ป้องกัน invite เก่า (> 60 วิ)
     if(Date.now()-(inv.ts||0) > 60000){ snap.ref.remove(); return; }
     showInvitePopup(inv.from, inv.roomId);
   });
 }
-
-/* --- แสดง popup รับ/ปฏิเสธคำเชิญ --- */
 function showInvitePopup(fromName, roomId){
-  // สร้าง popup ถ้ายังไม่มี
   let pop = document.getElementById('invitePopup');
   if(!pop){
     pop = document.createElement('div');
@@ -1171,12 +670,9 @@ function showInvitePopup(fromName, roomId){
     </div>`;
   pop.style.display = 'block';
 }
-
 async function acceptInvite(fromName, roomId){
-  // ซ่อน popup
   const pop = document.getElementById('invitePopup');
   if(pop) pop.style.display = 'none';
-  // ลบ invite
   await database.ref('invites/'+G.myName.toLowerCase()).remove();
 
   G.roomId = roomId;
@@ -1184,14 +680,11 @@ async function acceptInvite(fromName, roomId){
   G.opName = fromName;
   G.isBot = false;
 
-  // อัปเดต room ว่า p2 ready
-  await database.ref('rooms/'+roomId).update({ p2Ready: true, status: 'topic' });
-
-  // ไปหน้าเลือก topic
-  showScreen('screen-topic');
-  showStatus(`✅ รับคำเชิญจาก ${esc(fromName)} แล้ว! เลือกหัวข้อ`, 'sw');
+  // guest ไปหน้ารอ host เลือกโหมด — ห้ามเลือกเอง
+  showScreen('screen-waitmode');
+  document.getElementById('waitModeTitle').textContent = `รอ ${fromName} เลือกโหมดเกม...`;
+  watchRoomForModeSelection();
 }
-
 async function rejectInvite(roomId){
   const pop = document.getElementById('invitePopup');
   if(pop) pop.style.display = 'none';
@@ -1199,9 +692,29 @@ async function rejectInvite(roomId){
   if(roomId) await database.ref('rooms/'+roomId).update({status:'rejected'});
 }
 
-/* ============================================================
-   TOPIC & LEVEL — เชื่อม Firebase room
-============================================================ */
+/* guest ฟังห้องรอจน host เลือกโหมดเสร็จ (status เปลี่ยนเป็น choosing_cards) */
+function watchRoomForModeSelection(){
+  const roomRef = database.ref('rooms/'+G.roomId);
+  const listener = roomRef.on('value', snap=>{
+    const room = snap.val();
+    if(!room) return;
+    if(room.status === 'choosing_cards' || room.status === 'playing'){
+      roomRef.off('value', listener);
+      G.topic = room.topic; G.level = room.level;
+      enterCardSelectionPhase();
+    }
+  });
+}
+
+/* ==========================================================
+   TOPIC & LEVEL — เฉพาะ host เท่านั้น
+========================================================== */
+function resetTopicLevelUI(){
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('#diffLvList .lbtn').forEach(b=>b.classList.remove('sel'));
+  const tb=document.getElementById('topicNextBtn'); if(tb){tb.disabled=true;tb.style.opacity='.5'}
+  const lb=document.getElementById('levelNextBtn'); if(lb){lb.disabled=true;lb.style.opacity='.5'}
+}
 function selTopic(t,el){
   selTopic_=t;
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('sel'));
@@ -1218,82 +731,25 @@ function selLevel(lv,el){
 }
 async function startGame(){
   if(!selLevel_||!selTopic_)return;
+  G.topic = selTopic_; G.level = selLevel_;
+
   if(G.roomId && !G.isBot){
-    // อัปเดต topic+level ลง room
-    const myKey = G.isHost ? 'p1' : 'p2';
+    // เฉพาะ host เท่านั้นที่มาถึงจุดนี้ได้ (guest ไม่มีปุ่มเข้าถึงหน้านี้)
     await database.ref('rooms/'+G.roomId).update({
-      topic: selTopic_,
-      level: selLevel_,
-      [myKey+'Ready']: true
+      topic: selTopic_, level: selLevel_,
+      status: 'choosing_cards'
     });
-    // รอ room status เป็น playing
-    showScreen('screen-game');
-    startOnlineGameFromRoom();
-  } else {
-    // bot mode
-    showScreen('screen-game');
-    startBotGame();
   }
+  enterCardSelectionPhase();
 }
 
-/* ============================================================
-   ONLINE GAME — ดึงข้อมูลจาก Firebase room
-============================================================ */
-function startOnlineGameFromRoom(){
-  const roomRef = database.ref('rooms/'+G.roomId);
-  // ตั้งค่า UI
-  document.getElementById('p1Name').textContent = G.isHost ? G.myName : G.opName;
-  document.getElementById('p2Name').textContent = G.isHost ? G.opName : G.myName;
-  initGameOnline();
-  // ฟัง room changes
-  roomRef.on('value', snap=>{
-    const room = snap.val();
-    if(!room) return;
-    handleRoomUpdate(room, roomRef);
-  });
-}
-
-function initGameOnline(){
-  G.p1Hp=5;G.p2Hp=5;G.round=1;G.hasAnswered=false;
-  renderHearts();
-  document.getElementById('roundDis').textContent='รอบที่ 1';
-  document.getElementById('phaseBadge').textContent='รอเริ่มเกม...';
-  // Host สร้างคำถามแรกหลังทั้งคู่ ready
-  if(G.isHost){
-    waitForBothReady();
-  }
-}
-
-async function waitForBothReady(){
-  const roomRef = database.ref('rooms/'+G.roomId);
-  // รอ p2Ready
-  const check = setInterval(async()=>{
-    const snap = await roomRef.get();
-    const room = snap.val();
-    if(room && room.p2Ready){
-      clearInterval(check);
-      // ส่งคำถามแรก
-      sendNextQuestion();
-    }
-  }, 1000);
-}
-
-async function sendNextQuestion(){
-  if(!G.isHost) return;
-  const q = genOnlineQ(selTopic_||'mixed', selLevel_||'medium');
-  await database.ref('rooms/'+G.roomId).update({
-    question: { ...q, qId: Math.random().toString(36).slice(2,9) },
-    p1Result: null,
-    p2Result: null,
-    action: 'playing',
-    round: G.round||1
-  });
-}
-
-function genOnlineQ(topic, level){
+/* ==========================================================
+   PHASE: เลือกการ์ดโจทย์ — ต่างคนต่างเลือกฝั่งตัวเอง
+========================================================== */
+function genCardQuestion(topic, level){
   const ts=['add','sub','mul','div'];
-  const t = topic==='mixed' ? ts[Math.floor(Math.random()*4)] : topic;
-  const LR={easy:[1,10],medium:[2,50],hard:[10,100],extreme:[20,500]};
+  const t = topic==='mixed' ? ts[Math.floor(Math.random()*4)] : (topic==='frac' ? 'add' : topic);
+  const LR={easy:[1,10],medium:[10,99],hard:[100,999],extreme:[100,999]};
   const MR={easy:[1,9],medium:[2,12],hard:[2,25],extreme:[5,50]};
   const[mn,mx]=LR[level]||LR.medium;
   const r=()=>Math.floor(Math.random()*(mx-mn+1))+mn;
@@ -1304,86 +760,293 @@ function genOnlineQ(topic, level){
   else{const d=[2,3,4,5,6,7,8,9,10,11,12];b=d[Math.floor(Math.random()*d.length)];ans=r();a=ans*b;text=`${a} ÷ ${b}`}
   return{text, ans};
 }
+function genHand(topic, level, n=4){
+  const hand=[];
+  for(let i=0;i<n;i++) hand.push({...genCardQuestion(topic, level), used:false});
+  return hand;
+}
 
-let _lastQId = null;
-function handleRoomUpdate(room, roomRef){
-  // อัปเดต HP
-  if(room.p1Hp!==undefined) G.p1Hp=room.p1Hp;
-  if(room.p2Hp!==undefined) G.p2Hp=room.p2Hp;
+function enterCardSelectionPhase(){
+  showScreen('screen-game');
+  document.getElementById('p1Name').textContent = G.isHost ? G.myName : G.opName;
+  document.getElementById('p2Name').textContent = G.isHost ? G.opName : G.myName;
+  document.getElementById('p1HL').textContent = G.isHost ? G.myName : G.opName;
+  document.getElementById('p2HL').textContent = G.isHost ? G.opName : G.myName;
+  document.getElementById('roundDis').textContent = 'รอบที่ ' + (G.round||1);
+  document.getElementById('phaseBadge').textContent = 'เลือกการ์ดโจทย์';
+  document.getElementById('phaseDesc').textContent = 'แต่ละฝ่ายเลือก 1 ใบจากมือของตัวเอง';
+  document.getElementById('ansSec').style.display = 'none';
+  document.getElementById('qText').innerHTML = '<span class="qhid">? ? ?</span>';
+  document.getElementById('qCard').classList.remove('rev');
+
+  G.p1Hp = G.p1Hp || 5; G.p2Hp = G.p2Hp || 5;
   renderHearts();
+  G.myConfirmed = false;
+  G.p1Sel = null; G.p2Sel = null;
 
-  // แสดงคำถามใหม่
-  const q = room.question;
-  if(q && q.qId && q.qId !== _lastQId){
-    _lastQId = q.qId;
-    G.curQ = q;
-    G.hasAnswered = false;
-    G.round = room.round || 1;
-    document.getElementById('roundDis').textContent = 'รอบที่ '+G.round;
-    showQuestion(q.text);
-  }
-
-  // ตรวจ game over
-  if(G.p1Hp<=0||G.p2Hp<=0){
-    roomRef.off();
-    endOnlineGame();
+  if(G.isBot){
+    G.p1Cards = genHand(G.topic, G.level);
+    G.p2Cards = genHand(G.topic, G.level);
+    renderHandCards();
+    checkConfBar();
     return;
   }
 
-  // ถ้าทั้งคู่ตอบแล้ว — host คำนวณผล
-  if(room.action==='playing' && room.p1Result && room.p2Result && G.isHost){
-    database.ref('rooms/'+G.roomId+'/action').set('calculating');
-    setTimeout(()=>calcOnlineRound(room.p1Result, room.p2Result, roomRef), 500);
+  // online: host สร้างมือการ์ดของทั้งคู่แล้วบันทึกลง Firebase (deterministic source of truth)
+  if(G.isHost){
+    database.ref('rooms/'+G.roomId+'/hands').once('value', snap=>{
+      if(!snap.exists()){
+        const p1Hand = genHand(G.topic, G.level);
+        const p2Hand = genHand(G.topic, G.level);
+        database.ref('rooms/'+G.roomId+'/hands').set({p1: p1Hand, p2: p2Hand});
+      }
+    });
   }
+  listenToRoomCards();
 }
 
-function showQuestion(text){
-  document.getElementById('qCard').classList.add('rev');
-  document.getElementById('qText').textContent = text;
-  // ซ่อน hand cards, แสดงปุ่มตอบ
+function listenToRoomCards(){
+  cleanupGameListeners();
+  const roomRef = database.ref('rooms/'+G.roomId);
+  G.roomRef = roomRef;
+
+  roomRef.on('value', snap=>{
+    const room = snap.val();
+    if(!room) return;
+
+    if(room.p1Hp!==undefined) G.p1Hp = room.p1Hp;
+    if(room.p2Hp!==undefined) G.p2Hp = room.p2Hp;
+    renderHearts();
+
+    if(room.hands){
+      G.p1Cards = room.hands.p1 || [];
+      G.p2Cards = room.hands.p2 || [];
+      if(room.status === 'choosing_cards'){
+        renderHandCards();
+        checkConfBar();
+      }
+    }
+
+    if(room.p1Hp<=0 || room.p2Hp<=0){
+      endOnlineGame();
+      return;
+    }
+
+    // ทั้งคู่ยืนยันการ์ดแล้ว -> host สุ่มคำถามจริงจากการ์ดที่เลือก แล้วเข้าสู่ตอบคำถาม
+    if(room.status === 'choosing_cards' && room.p1Sel!=null && room.p2Sel!=null && G.isHost){
+      startRoundFromSelections(room);
+    }
+
+    if(room.status === 'answering' && room.question && room.question.qId !== G.lastQId){
+      G.lastQId = room.question.qId;
+      G.curQ = room.question;
+      G.hasAnswered = false;
+      G.round = room.round || 1;
+      document.getElementById('roundDis').textContent = 'รอบที่ ' + G.round;
+      showAnswerPhase(room.question);
+    }
+
+    if(room.status === 'answering' && room.p1Result && room.p2Result && G.isHost){
+      database.ref('rooms/'+G.roomId+'/status').set('calculating');
+      setTimeout(()=>calcRoundResult(room.p1Result, room.p2Result), 500);
+    }
+  });
+}
+
+function cleanupGameListeners(){
+  if(G.roomRef){ G.roomRef.off(); G.roomRef=null; }
+}
+
+async function startRoundFromSelections(room){
+  const p1Card = room.hands.p1[room.p1Sel];
+  const p2Card = room.hands.p2[room.p2Sel];
+  // ใช้โจทย์ของ p1 เป็นโจทย์กลางของรอบนี้ (สลับกันได้ในอนาคต); เก็บทั้งสองไว้เผื่อขยาย
+  const chosenQ = Math.random()<0.5 ? p1Card : p2Card;
+
+  const p1Hand = room.hands.p1.slice();
+  const p2Hand = room.hands.p2.slice();
+  if(p1Hand[room.p1Sel]) p1Hand[room.p1Sel] = {...p1Hand[room.p1Sel], used:true};
+  if(p2Hand[room.p2Sel]) p2Hand[room.p2Sel] = {...p2Hand[room.p2Sel], used:true};
+
+  await database.ref('rooms/'+G.roomId).update({
+    hands: {p1: p1Hand, p2: p2Hand},
+    p1Sel: null, p2Sel: null,
+    p1Result: null, p2Result: null,
+    status: 'answering',
+    question: { text: chosenQ.text, ans: chosenQ.ans, qId: Math.random().toString(36).slice(2,9) },
+    round: (G.round||1)
+  });
+}
+
+function renderHandCards(){
+  const myRole = G.isHost ? 'p1' : 'p2';
+  ['p1','p2'].forEach(role=>{
+    const cards = role==='p1'?G.p1Cards:G.p2Cards;
+    const sel = role==='p1'?G.p1Sel:G.p2Sel;
+    const container = document.getElementById(role+'HCards');
+    if(!container) return;
+    const mine = (role===myRole) || G.isBot;
+    container.innerHTML = (cards||[]).map((c,i)=>{
+      let cls='hcard';
+      if(c.used) cls+=' used';
+      if(sel===i) cls+=' sel';
+      if(!mine) cls+=' locked';
+      const clickable = mine && !c.used;
+      return `<div class="${cls}" ${clickable?`onclick="selCard('${role}',${i})"`:''}>
+        <div style="font-size:11px;color:var(--text2)">การ์ด</div>
+        <div class="cnum">#${i+1}</div>
+      </div>`;
+    }).join('');
+    const hint = document.getElementById(role+'Hint');
+    if(hint) hint.textContent = mine ? 'เลือก 1 ใบ' : 'รอผู้เล่นนี้เลือก...';
+  });
+}
+
+function selCard(role, idx){
+  const myRole = G.isHost ? 'p1' : 'p2';
+  if(!G.isBot && role !== myRole) return; // ห้ามเลือกการ์ดของอีกฝ่าย
+  if(G.myConfirmed) return;
+  const cards = role==='p1'?G.p1Cards:G.p2Cards;
+  if(!cards||!cards[idx]||cards[idx].used) return;
+
+  if(G.isBot){
+    if(role==='p1') G.p1Sel = idx; else G.p2Sel = idx;
+    if(role==='p1' && G.p2Sel===null){
+      // บอทเลือกเอง
+      const avail = G.p2Cards.map((c,i)=>c.used?null:i).filter(i=>i!==null);
+      G.p2Sel = avail[Math.floor(Math.random()*avail.length)];
+    }
+    renderHandCards();
+    checkConfBar();
+    return;
+  }
+
+  if(role==='p1') G.p1Sel = idx; else G.p2Sel = idx;
+  renderHandCards();
+  checkConfBar();
+}
+
+function checkConfBar(){
+  const myRole = G.isHost ? 'p1' : 'p2';
+  const mySel = myRole==='p1' ? G.p1Sel : G.p2Sel;
+  const bar = document.getElementById('confBar');
+  if(!bar) return;
+  bar.style.display = (mySel!==null && !G.myConfirmed) ? 'block' : 'none';
+}
+
+async function confirmCardSel(){
+  const myRole = G.isHost ? 'p1' : 'p2';
+  const mySel = myRole==='p1' ? G.p1Sel : G.p2Sel;
+  if(mySel===null || mySel===undefined) return;
+  G.myConfirmed = true;
+  document.getElementById('confBar').style.display = 'none';
+  showStatus('✅ เลือกการ์ดแล้ว กำลังรอฝ่ายตรงข้าม...', 'si');
+
+  if(G.isBot){
+    startRoundFromLocalSelections();
+    return;
+  }
+  await database.ref('rooms/'+G.roomId+'/'+myRole+'Sel').set(mySel);
+}
+
+function startRoundFromLocalSelections(){
+  const p1Card = G.p1Cards[G.p1Sel];
+  const p2Card = G.p2Cards[G.p2Sel];
+  const chosenQ = Math.random()<0.5 ? p1Card : p2Card;
+  G.p1Cards[G.p1Sel].used = true;
+  G.p2Cards[G.p2Sel].used = true;
+  G.curQ = chosenQ;
+  G.hasAnswered = false;
+  showAnswerPhase(chosenQ);
+}
+
+/* ==========================================================
+   PHASE: ตอบคำถาม
+========================================================== */
+function showAnswerPhase(q){
   document.getElementById('p1HSec').style.display='none';
   document.getElementById('p2HSec').style.display='none';
   document.getElementById('confBar').style.display='none';
-  document.getElementById('ansSec').style.display='none';
   document.getElementById('phaseBadge').textContent='ตอบคำถาม!';
-  document.getElementById('phaseDesc').textContent='กดปุ่มเพื่อตอบ';
-  // แสดง multiple choice
-  showOnlineChoices(G.curQ.ans);
-}
+  document.getElementById('phaseDesc').textContent='กดปุ่มเพื่อตอบให้เร็วที่สุด';
+  document.getElementById('qCard').classList.add('rev');
+  document.getElementById('qText').textContent = q.text;
 
-function showOnlineChoices(correct){
-  const mcWrap = document.getElementById('mcWrap');
-  const chGrid = document.getElementById('chGrid');
+  const correct = q.ans;
   const wrongs = new Set();
   while(wrongs.size<3){
     const d=Math.floor(Math.random()*15)-7;
     const c=correct+(d===0?3:d);
-    if(c>=0&&c!==correct) wrongs.add(c);
+    if(c>=0 && c!==correct) wrongs.add(c);
   }
   const all=[correct,...wrongs].sort(()=>Math.random()-.5);
-  chGrid.innerHTML=all.map(v=>`<button class="chbtn" onclick="submitOnlineAnswer(${v},${correct},this)">${v}</button>`).join('');
-  mcWrap.style.display='block';
+  const chGrid = document.getElementById('chGrid');
+  chGrid.innerHTML = all.map(v=>`<button class="chbtn" onclick="submitAnswer(${v},${correct},this)">${v}</button>`).join('');
   document.getElementById('ansSec').style.display='block';
   G.roundStartMs = Date.now();
+  G.hasAnswered = false;
 }
 
-async function submitOnlineAnswer(chosen, correct, btn){
+async function submitAnswer(chosen, correct, btn){
   if(G.hasAnswered) return;
   G.hasAnswered = true;
   const isCorrect = chosen===correct;
   const ms = Date.now() - G.roundStartMs;
-  // แสดงผลปุ่ม
   btn.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
+  btn.classList.add(isCorrect?'cor':'wrg');
   document.querySelectorAll('.chbtn').forEach(b=>b.disabled=true);
   if(!isCorrect){
-    document.querySelectorAll('.chbtn').forEach(b=>{if(parseInt(b.textContent)===correct)b.style.background='var(--green)'});
+    document.querySelectorAll('.chbtn').forEach(b=>{if(parseInt(b.textContent)===correct){b.classList.add('cor');b.style.background='var(--green)'}});
   }
-  // บันทึกผลลง Firebase
-  const role = G.isHost ? 'p1' : 'p2';
-  await database.ref('rooms/'+G.roomId+'/'+role+'Result').set({correct:isCorrect, timeMs:ms});
+
+  if(G.isBot){
+    // จำลองบอทตอบ
+    const botDelay = {easy:2500, medium:1500, hard:700}[G.botLv] || 1500;
+    const botAcc = {easy:0.65, medium:0.85, hard:0.97}[G.botLv] || 0.85;
+    setTimeout(()=>{
+      const botCorrect = Math.random() < botAcc;
+      const botMs = botDelay + Math.random()*400;
+      const myRole = 'p1';
+      const p1Res = myRole==='p1' ? {correct:isCorrect,timeMs:ms} : {correct:botCorrect,timeMs:botMs};
+      const p2Res = myRole==='p1' ? {correct:botCorrect,timeMs:botMs} : {correct:isCorrect,timeMs:ms};
+      calcRoundResultLocal(p1Res, p2Res);
+    }, botDelay);
+    return;
+  }
+
+  const myRole = G.isHost ? 'p1' : 'p2';
+  await database.ref('rooms/'+G.roomId+'/'+myRole+'Result').set({correct:isCorrect, timeMs:ms});
 }
 
-async function calcOnlineRound(p1Res, p2Res, roomRef){
+function calcRoundResultLocal(p1Res, p2Res){
+  let winner='draw';
+  if(p1Res.correct&&p2Res.correct){ winner=p1Res.timeMs<=p2Res.timeMs?'p1':'p2' }
+  else if(p1Res.correct){ winner='p1' }
+  else if(p2Res.correct){ winner='p2' }
+  if(winner==='p1') G.p2Hp=Math.max(0,G.p2Hp-1);
+  else if(winner==='p2') G.p1Hp=Math.max(0,G.p1Hp-1);
+  else { G.p1Hp=Math.max(0,G.p1Hp-1); G.p2Hp=Math.max(0,G.p2Hp-1); }
+  G.round=(G.round||1)+1;
+  renderHearts();
+  if(G.p1Hp<=0||G.p2Hp<=0){ setTimeout(()=>endBotGame(),1200); return; }
+  setTimeout(()=>{
+    document.getElementById('ansSec').style.display='none';
+    document.getElementById('p1HSec').style.display='';
+    document.getElementById('p2HSec').style.display='';
+    if(G.p1Cards.filter(c=>!c.used).length===0) G.p1Cards = genHand(G.topic, G.level);
+    if(G.p2Cards.filter(c=>!c.used).length===0) G.p2Cards = genHand(G.topic, G.level);
+    G.p1Sel=null; G.p2Sel=null; G.myConfirmed=false;
+    document.getElementById('phaseBadge').textContent='เลือกการ์ดโจทย์';
+    document.getElementById('phaseDesc').textContent='แต่ละฝ่ายเลือก 1 ใบจากมือของตัวเอง';
+    document.getElementById('qCard').classList.remove('rev');
+    document.getElementById('qText').innerHTML='<span class="qhid">? ? ?</span>';
+    document.getElementById('roundDis').textContent='รอบที่ '+G.round;
+    renderHandCards();
+    checkConfBar();
+  },1600);
+}
+
+async function calcRoundResult(p1Res, p2Res){
   let p1hp=G.p1Hp, p2hp=G.p2Hp;
   let winner='draw';
   if(p1Res.correct&&p2Res.correct){ winner=p1Res.timeMs<=p2Res.timeMs?'p1':'p2' }
@@ -1397,16 +1060,38 @@ async function calcOnlineRound(p1Res, p2Res, roomRef){
   await database.ref('rooms/'+G.roomId).update({
     p1Hp:p1hp, p2Hp:p2hp,
     p1Result:null, p2Result:null,
-    action:'playing',
+    status: (p1hp>0 && p2hp>0) ? 'choosing_cards' : 'gameover',
     round: G.round
   });
-  // ถ้าไม่ game over ส่งคำถามใหม่
+
   if(p1hp>0 && p2hp>0){
-    setTimeout(sendNextQuestion, 1500);
+    setTimeout(()=>{
+      document.getElementById('ansSec').style.display='none';
+      document.getElementById('p1HSec').style.display='';
+      document.getElementById('p2HSec').style.display='';
+      document.getElementById('phaseBadge').textContent='เลือกการ์ดโจทย์';
+      document.getElementById('phaseDesc').textContent='แต่ละฝ่ายเลือก 1 ใบจากมือของตัวเอง';
+      document.getElementById('qCard').classList.remove('rev');
+      document.getElementById('qText').innerHTML='<span class="qhid">? ? ?</span>';
+      G.myConfirmed = false;
+    },1600);
   }
 }
 
+/* ==========================================================
+   GAME OVER
+========================================================== */
+function renderHearts(){
+  ['p1','p2'].forEach(p=>{
+    const hp=p==='p1'?G.p1Hp:G.p2Hp;
+    const el=document.getElementById(p+'Hearts');
+    if(!el)return;
+    el.innerHTML=Array.from({length:5},(_,i)=>`<span class="heart${i>=hp?' empty':''}">❤️</span>`).join('');
+  });
+}
+
 function endOnlineGame(){
+  cleanupGameListeners();
   const myIsP1 = G.isHost;
   const myHp = myIsP1?G.p1Hp:G.p2Hp;
   const opHp = myIsP1?G.p2Hp:G.p1Hp;
@@ -1417,12 +1102,24 @@ function endOnlineGame(){
   document.getElementById('goSt').textContent = win?'⭐ +1 ดาว':lose?'💔 −1 ดาว':'➖';
   document.getElementById('goDesc').textContent = `เล่นกับ ${G.opName}`;
   document.getElementById('goStats').innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>❤️ ${esc(G.myName)}</span><strong>${myHp} HP</strong></div><div style="display:flex;justify-content:space-between"><span>❤️ ${esc(G.opName)}</span><strong>${opHp} HP</strong></div>`;
-  // อัปเดตดาว
+  if(win) updateStarsFB(G.myName,1);
+  if(lose) updateStarsFB(G.myName,-1);
+  showScreen('screen-gameover');
+}
+function endBotGame(){
+  const win = G.p1Hp>0 && G.p2Hp<=0;
+  const lose = G.p1Hp<=0 && G.p2Hp>0;
+  document.getElementById('goIco').textContent = win?'🏆':lose?'💔':'🤝';
+  document.getElementById('goTit').textContent = win?'คุณชนะ! 🎉':lose?'คุณแพ้...':'เสมอ!';
+  document.getElementById('goSt').textContent = win?'⭐ +1 ดาว':lose?'💔 −1 ดาว':'➖';
+  document.getElementById('goDesc').textContent = `เล่นกับ ${G.opName}`;
+  document.getElementById('goStats').innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>❤️ คุณ</span><strong>${G.p1Hp} HP</strong></div><div style="display:flex;justify-content:space-between"><span>❤️ ${esc(G.opName)}</span><strong>${G.p2Hp} HP</strong></div>`;
   if(win) updateStarsFB(G.myName,1);
   if(lose) updateStarsFB(G.myName,-1);
   showScreen('screen-gameover');
 }
 async function updateStarsFB(name,d){
+  if(!name) return;
   const snap=await database.ref('players/'+name.toLowerCase()).get();
   if(!snap.exists())return;
   const p=snap.val();
@@ -1431,15 +1128,19 @@ async function updateStarsFB(name,d){
   const nl=(p.losses||0)+(d<0?1:0);
   await database.ref('players/'+name.toLowerCase()).update({stars:ns,wins:nw,losses:nl});
 }
-function playAgain(){ showScreen('screen-topic'); selTopic_=null; selLevel_=null; }
-function renderHearts(){
-  ['p1','p2'].forEach(p=>{
-    const hp=p==='p1'?G.p1Hp:G.p2Hp;
-    const el=document.getElementById(p+'Hearts');
-    if(!el)return;
-    el.innerHTML=Array.from({length:5},(_,i)=>`<span class="heart${i>=hp?' empty':''}">❤️</span>`).join('');
-  });
+function playAgain(){
+  cleanupGameListeners();
+  if(G.isBot){
+    G.p1Hp=5;G.p2Hp=5;G.round=1;
+    showScreen('screen-topic');
+    selTopic_=null; selLevel_=null;
+    resetTopicLevelUI();
+    return;
+  }
+  showScreen('screen-home');
+  renderOnline(); renderLB();
 }
+
 let _stTimer=null;
 function showStatus(msg,cls='si'){
   const el=document.getElementById('statusArea');if(!el)return;
@@ -1447,7 +1148,9 @@ function showStatus(msg,cls='si'){
   clearTimeout(_stTimer);_stTimer=setTimeout(()=>{if(el)el.innerHTML=''},4000);
 }
 
-/* BOT (placeholder) */
+/* ==========================================================
+   BOT MODE
+========================================================== */
 function selBotLv(lv,el){
   selBotLv_=lv;
   document.querySelectorAll('#botLevelList .lbtn').forEach(b=>b.classList.remove('sel'));
@@ -1456,985 +1159,21 @@ function selBotLv(lv,el){
 }
 function startVsBot(){
   if(!selBotLv_)return;
-  G.isBot=true;G.botLv=selBotLv_;G.roomId='';
+  G.isBot=true; G.botLv=selBotLv_; G.roomId=''; G.isHost=true;
   G.opName={easy:'บอท (ง่าย)',medium:'บอท (ปานกลาง)',hard:'บอท (ยาก)'}[selBotLv_];
+  G.p1Hp=5; G.p2Hp=5; G.round=1;
+  selTopic_=null; selLevel_=null;
+  resetTopicLevelUI();
   showScreen('screen-topic');
 }
-function startBotGame(){ showStatus('โหมดบอทกำลังพัฒนา...','si') }
 
-/* ============================================================
-   FIX: การ์ดโจทย์ — เลือกได้เฉพาะฝั่งตัวเอง
-============================================================ */
-// ฝั่งตัวเองเท่านั้นที่เลือกได้
-// G.isHost = true → เป็น p1
-// G.isHost = false → เป็น p2
-function selCard(player, idx){
-  // ตรวจสอบว่าเป็นฝั่งของเราหรือไม่
-  const myRole = G.isHost ? 'p1' : 'p2';
-  if(player !== myRole && !G.isBot){ return; } // ถ้าไม่ใช่ฝั่งเรา ห้ามกด
-  const cards = player==='p1' ? G.p1Cards : G.p2Cards;
-  if(!cards||!cards[idx]||cards[idx].used) return;
-  if(player==='p1') G.p1Sel=idx; else G.p2Sel=idx;
-  renderHandCards();
-  checkConf();
-}
-function confirmCardSel(){
-  if(!G.isBot){
-    // online mode — ส่งการ์ดที่เลือกขึ้น Firebase แล้วรอ
-    showStatus('✅ เลือกการ์ดแล้ว กำลังรอฝ่ายตรงข้าม...','si');
-  }
-}
-function checkConf(){
-  const myRole=G.isHost?'p1':'p2';
-  const mySel=myRole==='p1'?G.p1Sel:G.p2Sel;
-  const bar=document.getElementById('confBar');
-  if(bar) bar.style.display=mySel!==null?'block':'none';
-}
-function renderHandCards(){}  // placeholder ถ้าไม่ได้ใช้ card system ใน online mode
-
-/* ============================================================
+/* ==========================================================
    BOOT
-============================================================ */
+========================================================== */
 document.addEventListener("DOMContentLoaded", () => {
   createStars();
-  // เคลียร์ session เก่า
-  const oldQueueKey = sessionStorage.getItem('my_queue_key');
-  if (oldQueueKey) database.ref('queue/' + oldQueueKey).remove();
   sessionStorage.clear();
-  // เริ่มที่หน้า login
   showScreen('screen-login');
-});
-</script>
-</body>
-</html>
-  --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2234;--card:#161d2e;
-  --border:#2d3748;--text:#f1f5f9;--text2:#94a3b8;
-  --accent:#f59e0b;--acdk:#d97706;--red:#ef4444;
-  --green:#10b981;--blue:#3b82f6;--purple:#8b5cf6;--gold:#fbbf24;
-  --shadow:0 4px 24px rgba(0,0,0,.5);
-  --r8:8px;--r12:12px;--r16:16px;
-}
-html{scroll-behavior:smooth}
-body{font-family:'Prompt',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.5}
-h1,h2,h3{font-family:'Kanit',sans-serif}
-
-/* ===== STARS ===== */
-.stars-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) infinite}
-@keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.8}}
-
-/* ===== SCREENS ===== */
-.screen{display:none;min-height:100vh;flex-direction:column;align-items:center}
-.screen.active{display:flex}
-
-/* ===== LOGIN SCREEN ===== */
-#screen-login{justify-content:center;padding:20px;background:linear-gradient(135deg,#0a0e1a,#0f1729,#0a0e1a)}
-.login-wrap{width:100%;max-width:400px;position:relative;z-index:1}
-.login-logo{text-align:center;margin-bottom:28px}
-.login-logo h1{font-size:clamp(28px,6vw,48px);background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:6px}
-.login-logo p{color:var(--text2);font-size:12px;letter-spacing:2px;text-transform:uppercase}
-.login-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:24px;box-shadow:var(--shadow)}
-.login-tabs{display:flex;gap:6px;margin-bottom:20px}
-.login-tab{flex:1;padding:9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);cursor:pointer;text-align:center;font-size:13px;color:var(--text2);font-family:'Prompt',sans-serif;transition:all .2s}
-.login-tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
-.login-field{margin-bottom:14px}
-.login-field label{display:block;font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
-.login-err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);border-radius:var(--r8);padding:10px 13px;font-size:13px;margin-bottom:14px;display:none}
-.login-ok{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--green);border-radius:var(--r8);padding:10px 13px;font-size:13px;margin-bottom:14px;display:none}
-.profile-bar{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r12);padding:10px 14px;margin-bottom:14px}
-.profile-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0}
-.profile-info{flex:1;min-width:0}
-.profile-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.profile-stars{font-size:12px;color:var(--gold)}
-.logout-btn{background:none;border:1px solid var(--border);border-radius:var(--r8);color:var(--text2);font-size:11px;padding:5px 10px;cursor:pointer;font-family:'Prompt',sans-serif;transition:all .2s;white-space:nowrap}
-.logout-btn:hover{border-color:var(--red);color:var(--red)}
-
-/* ===== HOME ===== */
-#screen-home{justify-content:center;padding:20px;background:linear-gradient(135deg,#0a0e1a,#0f1729,#0a0e1a)}
-.home-logo{text-align:center;margin-bottom:28px;position:relative;z-index:1}
-.home-logo h1{font-size:clamp(32px,6vw,56px);background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:8px}
-.home-logo p{color:var(--text2);font-size:13px;letter-spacing:2px;text-transform:uppercase}
-.menu-box{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:22px;width:100%;max-width:420px;position:relative;z-index:1;box-shadow:var(--shadow)}
-.home-profile{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r12);padding:10px 14px;margin-bottom:16px}
-.home-profile .profile-avatar{width:34px;height:34px;font-size:16px}
-
-/* ===== INPUTS ===== */
-.name-sec{margin-bottom:18px}
-.name-sec label{display:block;font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
-.inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:11px 13px;color:var(--text);font-family:'Prompt',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
-.inp:focus{border-color:var(--accent)}
-.inp::placeholder{color:var(--text2)}
-
-/* ===== BUTTONS ===== */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r12);border:none;font-family:'Prompt',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.3px}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
-.btn-p{background:linear-gradient(135deg,var(--accent),var(--acdk));color:#000}
-.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,.4)}
-.btn-s{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
-.btn-s:hover{background:var(--border);color:var(--text)}
-.btn-b{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff}
-.btn-b:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,.4)}
-.btn-g{background:linear-gradient(135deg,var(--green),#059669);color:#fff}
-.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(16,185,129,.4)}
-.btn-r{background:linear-gradient(135deg,var(--red),#dc2626);color:#fff}
-.btn-r:hover{transform:translateY(-2px)}
-.btn-pu{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff}
-.btn-pu:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,.4)}
-
-/* ===== TABS ===== */
-.tabs{display:flex;gap:6px;margin-bottom:16px}
-.tab{flex:1;padding:9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);cursor:pointer;text-align:center;font-size:13px;color:var(--text2);font-family:'Prompt',sans-serif;transition:all .2s}
-.tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
-
-/* ===== HELPERS ===== */
-.mtitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.div{height:1px;background:var(--border);margin:14px 0}
-.flex-gap{display:flex;gap:10px}
-.mt16{margin-top:16px}
-.tc{text-align:center}
-.tmuted{color:var(--text2)}
-
-/* ===== ONLINE LIST ===== */
-.fsearch{display:flex;gap:8px;margin-bottom:10px}
-.fsearch input{flex:1}
-.fi{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg3);border-radius:var(--r8);margin-bottom:6px;border:1px solid var(--border)}
-.fi .fn{font-weight:600;font-size:13px}
-.fi .fstars{font-size:11px;color:var(--gold);margin-top:2px}
-.dot-on{width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:6px;display:inline-block}
-.dot-reg{width:8px;height:8px;background:var(--blue);border-radius:50%;margin-right:6px;display:inline-block}
-
-/* ===== SETUP ===== */
-.setup{width:100%;max-width:480px;position:relative;z-index:1;padding:20px}
-.stitle{font-size:20px;font-weight:700;margin-bottom:20px;text-align:center;font-family:'Kanit',sans-serif}
-.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--text2);cursor:pointer;font-family:'Prompt',sans-serif;font-size:13px;padding:8px 0;margin-bottom:14px}
-.back-btn:hover{color:var(--text)}
-.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.tbtn{padding:20px 12px;border-radius:var(--r12);border:2px solid var(--border);background:var(--card);cursor:pointer;text-align:center;transition:all .2s;color:var(--text)}
-.tbtn:hover,.tbtn.sel{border-color:var(--accent)}
-.tbtn.sel{background:rgba(245,158,11,.1)}
-.tbtn .ti{font-size:28px;margin-bottom:6px}
-.tbtn .tn{font-weight:700;font-size:13px}
-.llist{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
-.lbtn{padding:15px 18px;border-radius:var(--r12);border:2px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;gap:13px;transition:all .2s;color:var(--text)}
-.lbtn:hover,.lbtn.sel{border-color:var(--accent);transform:translateX(4px)}
-.lbtn.sel{background:rgba(245,158,11,.1)}
-.lbtn .li{font-size:24px}
-.lbtn .ln{font-weight:700;font-size:14px}
-.lbtn .ld{font-size:11px;color:var(--text2);margin-top:2px}
-
-/* ===== LEADERBOARD ===== */
-.lbi{display:flex;align-items:center;gap:12px;padding:11px;background:var(--bg3);border-radius:var(--r8);margin-bottom:8px;border:1px solid var(--border)}
-.lbr{font-size:17px;font-weight:900;width:30px;text-align:center;color:var(--text2)}
-.lbr.gold{color:#fbbf24}.lbr.silver{color:#94a3b8}.lbr.bronze{color:#92400e}
-.lbn{flex:1;font-weight:600}
-.lbs{color:var(--gold);font-size:13px}
-
-/* ===== MODAL ===== */
-.mover{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
-.mbox{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;max-width:400px;width:90%;animation:popIn .3s ease;max-height:90vh;overflow-y:auto}
-.mtit{font-size:18px;font-weight:700;margin-bottom:4px;text-align:center}
-.msub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:18px}
-
-/* ===== ABILITY PICK ===== */
-.apgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
-.apc{border:2px solid var(--border);border-radius:var(--r12);background:var(--bg3);padding:13px 8px;cursor:pointer;text-align:center;transition:all .2s}
-.apc:hover{border-color:var(--purple);transform:translateY(-4px)}
-.apc.sel{border-color:var(--purple);background:rgba(139,92,246,.12)}
-.apc .api{font-size:26px;margin-bottom:7px}
-.apc .apn{font-size:11px;font-weight:700;margin-bottom:4px}
-.apc .apd{font-size:10px;color:var(--text2);line-height:1.4}
-
-/* ===== GAME ===== */
-.glayout{display:flex;flex-direction:column;width:100%;min-height:100vh}
-.ghdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
-.phdr{display:flex;align-items:center;gap:10px}
-.pntag{font-weight:700;font-size:13px;margin-bottom:3px}
-.rdis{font-size:11px;color:var(--text2);margin-top:2px}
-.hearts{display:flex;gap:3px}
-.heart{font-size:17px;transition:all .3s}
-.heart.empty{opacity:.2;filter:grayscale(1)}
-.vstag{background:var(--red);color:#fff;padding:4px 12px;border-radius:20px;font-weight:900;font-size:13px}
-
-/* ===== BOARD ===== */
-.bsec{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;min-height:280px}
-.rinfo{text-align:center;margin-bottom:14px}
-.rbadge{background:var(--accent);color:#000;padding:4px 16px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:5px}
-.pdesc{font-size:12px;color:var(--text2)}
-.qdis{text-align:center;margin-bottom:18px}
-.qcard{background:var(--card);border:2px solid var(--border);border-radius:var(--r16);padding:20px 28px;min-width:260px;text-align:center;position:relative;overflow:hidden;transition:border-color .3s}
-.qcard.rev{border-color:var(--accent);background:rgba(245,158,11,.05)}
-.qtxt{font-size:clamp(24px,5vw,40px);font-weight:900;font-family:'Kanit',sans-serif;letter-spacing:2px;min-height:52px;display:flex;align-items:center;justify-content:center}
-.qhid{font-size:38px;color:var(--text2);letter-spacing:8px}
-.blurn{filter:blur(6px);user-select:none}
-
-/* ===== ANSWERS ===== */
-.ansec{display:flex;gap:20px;justify-content:center;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap}
-.albl{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
-.ainp{width:140px;background:var(--bg3);border:2px solid var(--border);border-radius:var(--r8);padding:11px 12px;color:var(--text);font-family:'Prompt',sans-serif;font-size:22px;font-weight:700;text-align:center;outline:none;transition:all .2s;display:block;margin-bottom:7px}
-.ainp:focus{border-color:var(--accent)}
-.ainp:disabled{opacity:.4}
-.vsdiv{font-size:24px;color:var(--text2);padding-top:28px}
-.asbtn{width:140px;padding:10px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:var(--r8);color:#fff;font-family:'Prompt',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:block}
-.asbtn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(16,185,129,.4)}
-.asbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.chgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:340px;margin:0 auto}
-.chbtn{padding:13px;border-radius:var(--r8);border:2px solid var(--border);background:var(--bg3);cursor:pointer;font-family:'Prompt',sans-serif;font-size:16px;font-weight:700;color:var(--text);transition:all .2s}
-.chbtn:hover{border-color:var(--accent);background:rgba(245,158,11,.1)}
-.chbtn.cor{border-color:var(--green);background:rgba(16,185,129,.15);color:var(--green)}
-.chbtn.wrg{border-color:var(--red);background:rgba(239,68,68,.15);color:var(--red)}
-.chbtn:disabled{cursor:default}
-
-/* ===== HAND CARDS ===== */
-.hsec{padding:11px 14px;border-top:1px solid var(--border)}
-.hp1{background:var(--bg2)}
-.hhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.clbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
-.hhint{font-size:11px;color:var(--accent)}
-.hcards{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.hcard{width:66px;height:88px;border-radius:var(--r8);border:2px solid var(--border);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-.hcard:hover{transform:translateY(-8px);border-color:var(--accent)}
-.hcard.sel{border-color:var(--accent);transform:translateY(-8px);box-shadow:0 8px 20px rgba(245,158,11,.4)}
-.hcard.used{opacity:.25;pointer-events:none}
-.cnum{font-size:11px;font-weight:700;color:var(--accent);margin-top:4px}
-.confbar{padding:12px 16px;background:var(--bg2);border-top:1px solid var(--border);text-align:center}
-.confbar .btn{max-width:300px;margin:0 auto}
-
-/* ===== ABILITY CARDS ===== */
-.csec{padding:11px 14px;background:var(--bg2);border-top:1px solid var(--border)}
-.abrow{display:flex;justify-content:space-between}
-.crow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.abcard{width:70px;min-height:88px;border-radius:var(--r8);border:2px solid var(--border);background:var(--card);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:4px;transition:all .2s;text-align:center;flex-shrink:0}
-.abcard:hover{transform:translateY(-6px);border-color:var(--purple)}
-.abcard.used{opacity:.2;pointer-events:none;filter:grayscale(1)}
-.abcard .ai{font-size:22px}
-.abcard .an{font-size:9px;color:var(--text2);line-height:1.2;font-weight:600}
-
-/* ===== BOT ===== */
-.botthink{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);margin:8px 0;justify-content:center}
-.d{width:6px;height:6px;background:var(--text2);border-radius:50%;animation:db .8s ease infinite}
-.d:nth-child(2){animation-delay:.15s}
-.d:nth-child(3){animation-delay:.3s}
-@keyframes db{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-
-/* ===== STATUS ===== */
-.smsg{padding:8px 14px;border-radius:var(--r8);font-size:13px;font-weight:600;margin:6px 0;animation:fs .3s ease}
-.sw{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
-.sl{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
-.si{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
-.sa{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
-@keyframes fs{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-
-/* ===== ROUND RESULT ===== */
-.rrover{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
-.rrbox{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:28px;text-align:center;max-width:320px;width:90%;animation:popIn .3s ease}
-.rico{font-size:52px;margin-bottom:10px}
-.rtit{font-size:26px;font-weight:900;font-family:'Kanit',sans-serif;margin-bottom:6px}
-.rsub{color:var(--text2);font-size:13px;margin-bottom:10px}
-.rdet{font-size:13px;color:var(--text2);margin:8px 0}
-
-/* ===== GAME OVER ===== */
-#screen-gameover{justify-content:center;padding:20px}
-.goscreen{text-align:center;padding:24px;position:relative;z-index:1;width:100%;max-width:400px}
-.goico{font-size:60px;margin-bottom:14px;animation:bounce 1s ease infinite}
-.gotit{font-size:36px;font-weight:900;font-family:'Kanit',sans-serif;margin-bottom:6px}
-.gost{font-size:26px;margin:12px 0;letter-spacing:4px}
-.godesc{color:var(--text2);font-size:14px;margin-bottom:18px}
-.gostats{background:var(--card);border-radius:var(--r12);padding:16px;margin-bottom:18px;text-align:left;border:1px solid var(--border)}
-.fzmsg{text-align:center;padding:7px;color:var(--blue);font-weight:700;font-size:14px;margin:4px 0}
-
-/* ===== ANIMS ===== */
-@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-
-/* ===== SCROLLBAR ===== */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width:480px){
-  .ansec{gap:12px}
-  .ainp{width:120px;font-size:18px}
-  .asbtn{width:120px}
-  .abcard{width:60px}
-  .hcard{width:58px;height:76px}
-}
-</style>
-</head>
-<body>
-
-<div class="stars-bg" id="starsBg"></div>
-
-<!-- ===== LOGIN SCREEN ===== -->
-<div class="screen active" id="screen-login">
-  <div class="login-wrap">
-    <div class="login-logo">
-      <h1>⚔️ MATH BATTLE</h1>
-      <p>สนามแข่งคณิตศาสตร์ 1v1</p>
-    </div>
-    <div class="login-card">
-      <div id="loginErrMsg" class="login-err"></div>
-      <div id="loginOkMsg" class="login-ok"></div>
-      <div class="login-tabs">
-        <button class="login-tab active" onclick="switchLoginTab('login',this)">🔑 เข้าสู่ระบบ</button>
-        <button class="login-tab" onclick="switchLoginTab('register',this)">✨ สมัครสมาชิก</button>
-      </div>
-      <!-- Login Form -->
-      <div id="loginForm">
-        <div class="login-field">
-          <label>ชื่อผู้เล่น</label>
-          <input type="text" class="inp" id="loginName" placeholder="ใส่ชื่อของคุณ..." maxlength="20" onkeydown="if(event.key==='Enter')doLogin()">
-        </div>
-        <div class="login-field">
-          <label>รหัสผ่าน</label>
-          <input type="password" class="inp" id="loginPass" placeholder="รหัสผ่าน..." maxlength="30" onkeydown="if(event.key==='Enter')doLogin()">
-        </div>
-        <button class="btn btn-p" onclick="doLogin()">เข้าสู่ระบบ ▶</button>
-        <div style="margin-top:12px;text-align:center;font-size:12px;color:var(--text2)">ยังไม่มีบัญชี? <span style="color:var(--accent);cursor:pointer" onclick="switchLoginTab('register',null)">สมัครเลย</span></div>
-      </div>
-      <!-- Register Form -->
-      <div id="registerForm" style="display:none">
-        <div class="login-field">
-          <label>ชื่อผู้เล่น (แสดงในเกม)</label>
-          <input type="text" class="inp" id="regName" placeholder="ชื่อที่อยากใช้..." maxlength="20" onkeydown="if(event.key==='Enter')doRegister()">
-        </div>
-        <div class="login-field">
-          <label>รหัสผ่าน</label>
-          <input type="password" class="inp" id="regPass" placeholder="ตั้งรหัสผ่าน..." maxlength="30" onkeydown="if(event.key==='Enter')doRegister()">
-        </div>
-        <div class="login-field">
-          <label>ยืนยันรหัสผ่าน</label>
-          <input type="password" class="inp" id="regPass2" placeholder="พิมพ์รหัสผ่านอีกครั้ง..." maxlength="30" onkeydown="if(event.key==='Enter')doRegister()">
-        </div>
-        <button class="btn btn-g" onclick="doRegister()">สมัครสมาชิก ✨</button>
-        <div style="margin-top:12px;text-align:center;font-size:12px;color:var(--text2)">มีบัญชีแล้ว? <span style="color:var(--accent);cursor:pointer" onclick="switchLoginTab('login',null)">เข้าสู่ระบบ</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== HOME ===== -->
-<div class="screen" id="screen-home">
-  <div class="home-logo">
-    <h1>⚔️ MATH BATTLE</h1>
-    <p>สนามแข่งคณิตศาสตร์ 1v1</p>
-  </div>
-  <div class="menu-box">
-    <!-- Profile bar -->
-    <div class="home-profile" id="homeProfile">
-      <div class="profile-avatar" id="homeAvatar">?</div>
-      <div class="profile-info">
-        <div class="profile-name" id="homeProfileName">ผู้เล่น</div>
-        <div class="profile-stars" id="homeProfileStars">⭐ 0 ดาว</div>
-      </div>
-      <button class="logout-btn" onclick="doLogout()">ออกจากระบบ</button>
-    </div>
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('online',event)">🌐 ค้นหาคู่แข่ง</button>
-      <button class="tab" onclick="switchTab('bot',event)">🤖 VS บอท</button>
-      <button class="tab" onclick="switchTab('lb',event)">🏆 ลีดเดอร์</button>
-    </div>
-    <div id="tab-online">
-      <div class="mtitle">ค้นหาผู้เล่นที่ลงทะเบียน</div>
-      <div class="fsearch">
-        <input type="text" class="inp" id="searchInput" placeholder="พิมพ์ชื่อผู้เล่น..." oninput="searchFriend(this.value)">
-        <button class="btn btn-p" style="width:auto;padding:10px 16px" onclick="searchFriend(document.getElementById('searchInput').value)">ค้นหา</button>
-      </div>
-      <div id="searchResults"></div>
-      <div class="div"></div>
-      <div class="mtitle">ผู้เล่นที่ลงทะเบียนทั้งหมด</div>
-      <div id="onlinePlayers"></div>
-    </div>
-    <div id="tab-bot" style="display:none">
-      <div class="mtitle">เลือกความยากของบอท</div>
-      <div class="llist" id="botLevelList">
-        <div class="lbtn" onclick="selBotLv('easy',this)"><span class="li">😊</span><div><div class="ln">ง่าย</div><div class="ld">บอทตอบช้า ผิดบ้าง 35%</div></div></div>
-        <div class="lbtn" onclick="selBotLv('medium',this)"><span class="li">😐</span><div><div class="ln">ปานกลาง</div><div class="ld">บอทตอบปานกลาง ผิด 15%</div></div></div>
-        <div class="lbtn" onclick="selBotLv('hard',this)"><span class="li">😈</span><div><div class="ln">ยาก</div><div class="ld">บอทตอบเร็วมาก แทบไม่ผิด 3%</div></div></div>
-      </div>
-      <button class="btn btn-p" id="botStartBtn" onclick="startVsBot()" style="opacity:.5" disabled>เริ่มเกมกับบอท ▶</button>
-    </div>
-    <div id="tab-lb" style="display:none">
-      <div class="mtitle">🏆 Top 10 ผู้เล่น</div>
-      <div id="lbList"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== TOPIC ===== -->
-<div class="screen" id="screen-topic">
-  <div class="setup">
-    <button class="back-btn" onclick="showScreen('screen-home')">← กลับ</button>
-    <div class="stitle">📚 เลือกหัวข้อ</div>
-    <div class="tgrid">
-      <div class="tbtn" onclick="selTopic('add',this)"><div class="ti">➕</div><div class="tn">การบวก</div></div>
-      <div class="tbtn" onclick="selTopic('sub',this)"><div class="ti">➖</div><div class="tn">การลบ</div></div>
-      <div class="tbtn" onclick="selTopic('mul',this)"><div class="ti">✖️</div><div class="tn">การคูณ</div></div>
-      <div class="tbtn" onclick="selTopic('div',this)"><div class="ti">➗</div><div class="tn">การหาร</div></div>
-      <div class="tbtn" onclick="selTopic('mixed',this)"><div class="ti">🔀</div><div class="tn">รวมทุกอย่าง</div></div>
-      <div class="tbtn" onclick="selTopic('frac',this)"><div class="ti">🔢</div><div class="tn">เศษส่วน</div></div>
-    </div>
-    <button class="btn btn-p" id="topicNextBtn" style="opacity:.5" disabled onclick="showScreen('screen-level')">ถัดไป ›</button>
-  </div>
-</div>
-
-<!-- ===== LEVEL ===== -->
-<div class="screen" id="screen-level">
-  <div class="setup">
-    <button class="back-btn" onclick="showScreen('screen-topic')">← กลับ</button>
-    <div class="stitle">⚡ เลือกระดับความยาก</div>
-    <div class="llist" id="diffLvList">
-      <div class="lbtn" onclick="selLevel('easy',this)"><span class="li">🌱</span><div><div class="ln">ง่าย</div><div class="ld">ตัวเลข 1–10</div></div></div>
-      <div class="lbtn" onclick="selLevel('medium',this)"><span class="li">🔥</span><div><div class="ln">ปานกลาง</div><div class="ld">ตัวเลข 2 หลัก</div></div></div>
-      <div class="lbtn" onclick="selLevel('hard',this)"><span class="li">💀</span><div><div class="ln">ยาก</div><div class="ld">ตัวเลข 3 หลัก</div></div></div>
-      <div class="lbtn" onclick="selLevel('extreme',this)"><span class="li">☠️</span><div><div class="ln">ยากมาก</div><div class="ld">ตัวเลขขนาดใหญ่</div></div></div>
-    </div>
-    <button class="btn btn-p" id="levelNextBtn" style="opacity:.5" disabled onclick="startGame()">เริ่มเกม! ⚔️</button>
-  </div>
-</div>
-
-<!-- ===== MODAL: ABILITY PICK ===== -->
-<div class="mover" id="apModal" style="display:none">
-  <div class="mbox">
-    <div class="mtit">🃏 เลือกการ์ดความสามารถ</div>
-    <div class="msub" id="apSub">เลือก 1 ใบจาก 3 ใบ</div>
-    <div class="apgrid" id="apGrid"></div>
-    <button class="btn btn-pu" id="apConfirm" onclick="confirmAbPick()" style="opacity:.5" disabled>ยืนยันเลือก</button>
-  </div>
-</div>
-
-<!-- ===== MODAL: SWAP ===== -->
-<div class="mover" id="swapModal" style="display:none">
-  <div class="mbox">
-    <div class="mtit">🔄 สลับโจทย์?</div>
-    <div class="msub">ต้องการสลับโจทย์กับฝ่ายตรงข้ามไหม?</div>
-    <div class="flex-gap mt16">
-      <button class="btn btn-r" onclick="confirmSwap(true)">สลับ ✅</button>
-      <button class="btn btn-s" onclick="confirmSwap(false)">ไม่สลับ ❌</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== GAME ===== -->
-<div class="screen" id="screen-game">
-  <div class="glayout">
-    <div class="ghdr">
-      <div class="phdr">
-        <div>
-          <div class="pntag" id="p1Name">P1</div>
-          <div class="hearts" id="p1Hearts"></div>
-        </div>
-      </div>
-      <div class="tc">
-        <div class="vstag">VS</div>
-        <div class="rdis" id="roundDis">รอบที่ 1</div>
-      </div>
-      <div class="phdr" style="flex-direction:row-reverse">
-        <div style="text-align:right">
-          <div class="pntag" id="p2Name">P2</div>
-          <div class="hearts" style="justify-content:flex-end" id="p2Hearts"></div>
-        </div>
-      </div>
-    </div>
-    <div id="statusArea" style="padding:0 16px"></div>
-    <div class="bsec">
-      <div class="rinfo">
-        <div class="rbadge" id="phaseBadge">เลือกการ์ดโจทย์</div>
-        <div class="pdesc" id="phaseDesc">แต่ละฝ่ายเลือก 1 ใบจากมือ</div>
-      </div>
-      <div class="qdis">
-        <div class="qcard" id="qCard">
-          <div class="qtxt" id="qText"><span class="qhid">? ? ?</span></div>
-        </div>
-        <div id="botArea" style="display:none">
-          <div class="botthink"><div class="d"></div><div class="d"></div><div class="d"></div><span>บอทกำลังคิด...</span></div>
-        </div>
-      </div>
-      <div id="ansSec" style="display:none">
-        <div class="ansec">
-          <div>
-            <div class="albl" id="p1AnsLbl">P1</div>
-            <input type="number" class="ainp" id="p1Ans" placeholder="?" onkeydown="if(event.key==='Enter')submitAns(1)">
-            <button class="asbtn" id="p1Btn" onclick="submitAns(1)">ยืนยัน</button>
-          </div>
-          <div class="vsdiv">—</div>
-          <div>
-            <div class="albl" id="p2AnsLbl">P2</div>
-            <input type="number" class="ainp" id="p2Ans" placeholder="?" onkeydown="if(event.key==='Enter')submitAns(2)">
-            <button class="asbtn" id="p2Btn" onclick="submitAns(2)">ยืนยัน</button>
-          </div>
-        </div>
-        <div id="mcWrap" style="display:none;margin-top:12px">
-          <div class="chgrid" id="chGrid"></div>
-        </div>
-      </div>
-    </div>
-    <div class="hsec hp1" id="p1HSec">
-      <div class="hhdr"><div class="clbl">🃏 <span id="p1HL">P1</span> — การ์ดโจทย์</div><div class="hhint">เลือก 1 ใบ</div></div>
-      <div class="hcards" id="p1HCards"></div>
-    </div>
-    <div class="hsec" id="p2HSec">
-      <div class="hhdr"><div class="clbl">🃏 <span id="p2HL">P2</span> — การ์ดโจทย์</div><div class="hhint">เลือก 1 ใบ</div></div>
-      <div class="hcards" id="p2HCards"></div>
-    </div>
-    <div id="confBar" style="display:none" class="confbar">
-      <button class="btn btn-g" onclick="confirmCardSel()">✅ ยืนยันการ์ดที่เลือก</button>
-    </div>
-    <div class="csec">
-      <div class="abrow">
-        <div>
-          <div class="clbl">🌟 <span id="p1AL">P1</span> การ์ดพิเศษ</div>
-          <div class="crow" id="p1AbCards"></div>
-        </div>
-        <div style="text-align:right">
-          <div class="clbl">🌟 <span id="p2AL">P2</span> การ์ดพิเศษ</div>
-          <div class="crow" id="p2AbCards" style="justify-content:flex-end"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== ROUND RESULT ===== -->
-<div class="rrover" id="rrOver" style="display:none">
-  <div class="rrbox">
-    <div class="rico" id="rIcon">🏆</div>
-    <div class="rtit" id="rTitle">ชนะ!</div>
-    <div class="rsub" id="rSub"></div>
-    <div class="rdet" id="rDet"></div>
-    <button class="btn btn-p mt16" onclick="nextRound()">ถัดไป ▶</button>
-  </div>
-</div>
-
-<!-- ===== GAME OVER ===== -->
-<div class="screen" id="screen-gameover">
-  <div class="goscreen">
-    <div class="goico" id="goIco">🏆</div>
-    <div class="gotit" id="goTit">ชนะ!</div>
-    <div class="gost" id="goSt">⭐</div>
-    <div class="godesc" id="goDesc"></div>
-    <div class="gostats" id="goStats"></div>
-    <div class="flex-gap">
-      <button class="btn btn-p" onclick="playAgain()">เล่นอีกครั้ง ↺</button>
-      <button class="btn btn-s" onclick="goHome()">หน้าหลัก 🏠</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// ==========================================
-// 1. ตั้งค่าเชื่อมต่อฐานข้อมูล Firebase ของคุณ
-// ==========================================
-const firebaseConfig = {
-    databaseURL: "https://mathbattle-ac082-default-rtdb.firebaseio.com"
-};
-
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const database = firebase.database();
-
-// ตัวแปรควบคุมระบบเกม
-let G = {
-  state: 'home',
-  myName: '',
-  opName: '',
-  isBot: false,
-  isHost: false, 
-  roomId: '',
-  p1Hp: 3, p2Hp: 3,
-  p1Score: 0, p2Score: 0,
-  curQ: null,
-  p1Ans: null, p2Ans: null,
-  p1Ms: 0, p2Ms: 0,
-  timerInterval: null,
-  startMs: 0,
-  hasAnswered: false 
-};
-
-const screens = {
-  home: document.getElementById('screen-home'),
-  match: document.getElementById('screen-match'),
-  game: document.getElementById('screen-game'),
-  result: document.getElementById('screen-result')
-};
-
-function switchScreen(s){
-  Object.values(screens).forEach(div => div.classList.remove('active'));
-  screens[s].classList.add('active');
-  G.state = s;
-}
-
-function esc(str){
-  if(!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ==========================================
-// 2. ระบบออนไลน์ ค้นหาผู้เล่นคนอื่น (Matchmaking)
-// ==========================================
-function startMatchmaking() {
-  const nameInput = document.getElementById('usernameInput').value.trim();
-  G.myName = nameInput || "Player_" + Math.floor(Math.random() * 1000);
-  
-  // บันทึกชื่อผู้เล่นคนนี้ไว้ในเครื่องชั่วคราวขณะเล่นเกม
-  sessionStorage.setItem('current_username', G.myName);
-  
-  switchScreen('match'); 
-  document.getElementById('matchText').textContent = "กำลังค้นหาคู่แข่งออนไลน์...";
-  
-  const playersRef = database.ref('queue');
-  
-  const myQueueRef = playersRef.push({
-    name: G.myName,
-    status: "waiting",
-    roomId: ""
-  });
-
-  // บันทึกคีย์คิวปัจจุบันไว้เคลียร์ตอนรีเฟรชหน้าเว็บ
-  sessionStorage.setItem('my_queue_key', myQueueRef.key);
-  myQueueRef.onDisconnect().remove();
-
-  playersRef.once('value', (snapshot) => {
-    let matched = false;
-    snapshot.forEach((child) => {
-      const oppKey = child.key;
-      const oppData = child.val();
-
-      if (oppKey !== myQueueRef.key && oppData.status === "waiting" && !matched) {
-        matched = true;
-        const newRoomId = "room_" + Math.random().toString(36).substring(2, 9);
-        G.isHost = true; 
-
-        database.ref('queue/' + oppKey).update({ status: "matched", roomId: newRoomId });
-        myQueueRef.update({ status: "matched", roomId: newRoomId });
-        
-        setTimeout(() => {
-          setupOnlineRoom(newRoomId, G.myName, oppData.name);
-          myQueueRef.remove();
-          sessionStorage.removeItem('my_queue_key');
-        }, 500);
-      }
-    });
-  });
-
-  myQueueRef.child('roomId').on('value', (snapshot) => {
-    const rId = snapshot.val();
-    if (rId && !G.isHost) {
-      database.ref('rooms/' + rId + '/p1Name').once('value', (nameSnap) => {
-        setupOnlineRoom(rId, nameSnap.val(), G.myName);
-        myQueueRef.off(); 
-        myQueueRef.remove(); 
-        sessionStorage.removeItem('my_queue_key');
-      });
-    }
-  });
-}
-
-function setupOnlineRoom(roomId, p1Name, p2Name) {
-  G.roomId = roomId;
-  G.isBot = false;
-  
-  if (G.isHost) {
-    G.myName = p1Name; G.opName = p2Name;
-    database.ref('rooms/' + roomId).set({
-      p1Name: p1Name, p2Name: p2Name,
-      p1Hp: 3, p2Hp: 3,
-      p1Score: 0, p2Score: 0,
-      question: { text: "", ans: 0 },
-      action: "playing"
-    });
-  } else {
-    G.myName = p2Name; G.opName = p1Name;
-  }
-
-  document.getElementById('p1NameTxt').textContent = p1Name;
-  document.getElementById('p2NameTxt').textContent = p2Name;
-  
-  document.getElementById('botActionBlock').style.display = 'none';
-  document.getElementById('botArea').style.display = 'none';
-  document.getElementById('p1HSec').style.display = '';
-  document.getElementById('p2HSec').style.display = '';
-
-  switchScreen('game');
-  initGameSession();
-  listenToOnlineRoom();
-}
-
-function initGameSession() {
-  G.p1Hp = 3; G.p2Hp = 3; G.p1Score = 0; G.p2Score = 0;
-  drawHearts('p1', 3); drawHearts('p2', 3);
-  document.getElementById('p1Score').textContent = '0';
-  document.getElementById('p2Score').textContent = '0';
-  
-  if (G.isHost) {
-    generateAndSendQuestion();
-  }
-}
-
-// ==========================================
-// 3. ระบบสุ่มคำถามและส่งออนไลน์
-// ==========================================
-function generateAndSendQuestion() {
-  const mode = document.querySelector('.mode-btn.active')?.dataset.mode || 'normal';
-  let num1, num2, op, ans;
-
-  if (mode === 'easy') {
-    op = Math.random() > 0.5 ? '+' : '-';
-    if (op === '+') {
-      num1 = Math.floor(Math.random() * 20) + 1;
-      num2 = Math.floor(Math.random() * 20) + 1;
-      ans = num1 + num2;
-    } else {
-      num1 = Math.floor(Math.random() * 20) + 1;
-      num2 = Math.floor(Math.random() * num1) + 1;
-      ans = num1 - num2;
-    }
-  } else if (mode === 'hard') {
-    const ops = ['+', '-', '*'];
-    op = ops[Math.floor(Math.random() * ops.length)];
-    if (op === '+') {
-      num1 = Math.floor(Math.random() * 100) + 10;
-      num2 = Math.floor(Math.random() * 100) + 10;
-      ans = num1 + num2;
-    } else if (op === '-') {
-      num1 = Math.floor(Math.random() * 100) + 10;
-      num2 = Math.floor(Math.random() * num1) + 1;
-      ans = num1 - num2;
-    } else {
-      num1 = Math.floor(Math.random() * 12) + 2;
-      num2 = Math.floor(Math.random() * 12) + 2;
-      ans = num1 * num2;
-    }
-  } else {
-    const ops = ['+', '-'];
-    op = ops[Math.floor(Math.random() * ops.length)];
-    if (op === '+') {
-      num1 = Math.floor(Math.random() * 50) + 1;
-      num2 = Math.floor(Math.random() * 50) + 1;
-      ans = num1 + num2;
-    } else {
-      num1 = Math.floor(Math.random() * 50) + 1;
-      num2 = Math.floor(Math.random() * num1) + 1;
-      ans = num1 - num2;
-    }
-  }
-
-  database.ref('rooms/' + G.roomId).update({
-    p1Result: null,
-    p2Result: null,
-    action: "playing",
-    question: {
-      text: `${num1} ${op} ${num2} = ?`,
-      ans: ans,
-      qId: Math.random().toString(36).substring(2, 9)
-    }
-  });
-}
-
-function listenToOnlineRoom() {
-  const roomRef = database.ref('rooms/' + G.roomId);
-
-  roomRef.child('question').on('value', (snapshot) => {
-    const q = snapshot.val();
-    if (q && q.text) {
-      G.curQ = q;
-      G.hasAnswered = false; 
-      document.getElementById('qText').textContent = q.text;
-      generateChoices(q.ans); 
-      startRoundTimer();
-    }
-  });
-
-  roomRef.on('value', (snapshot) => {
-    const room = snapshot.val();
-    if (!room) return;
-    
-    G.p1Hp = room.p1Hp; G.p2Hp = room.p2Hp;
-    G.p1Score = room.p1Score; G.p2Score = room.p2Score;
-    
-    drawHearts('p1', G.p1Hp); drawHearts('p2', G.p2Hp);
-    document.getElementById('p1Score').textContent = G.p1Score;
-    document.getElementById('p2Score').textContent = G.p2Score;
-
-    if (G.p1Hp <= 0 || G.p2Hp <= 0) {
-      endGameOnline(roomRef);
-      return;
-    }
-
-    if (room.action === "playing" && room.p1Result && room.p2Result) {
-      roomRef.child('action').set("calculating"); 
-      processRoundResults(room.p1Result, room.p2Result, roomRef);
-    }
-  });
-}
-
-function generateChoices(correctAns) {
-  const area = document.getElementById('choicesArea');
-  area.innerHTML = '';
-  const set = new Set([correctAns]);
-  while (set.size < 4) {
-    const dev = Math.floor(Math.random() * 15) - 7;
-    const c = correctAns + (dev === 0 ? 3 : dev);
-    if (c >= 0) set.add(c);
-  }
-  const arr = Array.from(set).sort(() => Math.random() - 0.5);
-  arr.forEach(val => {
-    const b = document.createElement('button');
-    b.className = 'choice-btn';
-    b.textContent = val;
-    b.onclick = () => handleAnswerSelection(val, b); 
-    area.appendChild(b);
-  });
-}
-
-function startRoundTimer() {
-  clearInterval(G.timerInterval);
-  const bar = document.getElementById('timerBar');
-  bar.style.width = '100%';
-  G.startMs = Date.now();
-  const limit = 10000;
-  G.timerInterval = setInterval(() => {
-    const elapsed = Date.now() - G.startMs;
-    const pct = Math.max(0, ((limit - elapsed) / limit) * 100);
-    bar.style.width = pct + '%';
-    if (elapsed >= limit) {
-      clearInterval(G.timerInterval);
-      if (!G.hasAnswered) {
-        handleAnswerSelection(null, null); 
-      }
-    }
-  }, 50);
-}
-
-function handleAnswerSelection(chosenValue, clickedButton) {
-  if (G.hasAnswered) return; 
-  G.hasAnswered = true;
-  
-  clearInterval(G.timerInterval);
-  const duration = Date.now() - G.startMs;
-  const isCorrect = (chosenValue === G.curQ.ans);
-
-  if (clickedButton) {
-    clickedButton.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
-  }
-
-  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-
-  const myRole = G.isHost ? 'p1' : 'p2';
-  database.ref('rooms/' + G.roomId + '/' + myRole + 'Result').set({
-    correct: isCorrect,
-    timeMs: duration
-  });
-}
-
-function processRoundResults(p1Res, p2Res, roomRef) {
-  let p1HpEffect = G.p1Hp, p2HpEffect = G.p2Hp;
-  let p1ScoreEffect = G.p1Score, p2ScoreEffect = G.p2Score;
-
-  if (p1Res.correct && p2Res.correct) {
-    if (p1Res.timeMs < p2Res.timeMs) {
-      p2HpEffect--; p1ScoreEffect += 10;
-    } else {
-      p1HpEffect--; p2ScoreEffect += 10;
-    }
-  } else if (p1Res.correct) {
-    p2HpEffect--; p1ScoreEffect += 10;
-  } else if (p2Res.correct) {
-    p1HpEffect--; p2ScoreEffect += 10;
-  } else {
-    p1HpEffect--; p2HpEffect--;
-  }
-
-  if (G.isHost) {
-    database.ref('rooms/' + G.roomId).update({
-      p1Hp: Math.max(0, p1HpEffect),
-      p2Hp: Math.max(0, p2HpEffect),
-      p1Score: p1ScoreEffect,
-      p2Score: p2ScoreEffect
-    });
-    
-    setTimeout(() => {
-      if (p1HpEffect > 0 && p2HpEffect > 0) {
-        generateAndSendQuestion();
-      }
-    }, 1500);
-  }
-}
-
-function drawHearts(player, hp) {
-  const container = document.getElementById(player + 'Hearts');
-  if(!container) return;
-  container.innerHTML = '';
-  for(let i=0; i<3; i++) {
-    container.innerHTML += i < hp ? '<span class="heart active">❤️</span>' : '<span class="heart">🖤</span>';
-  }
-}
-
-function cancelMatchmaking() {
-  switchScreen('home');
-  database.ref('queue').orderByChild('name').equalTo(G.myName).once('value', (snap) => {
-    snap.forEach(child => child.ref.remove());
-  });
-  sessionStorage.clear();
-}
-
-function endGameOnline(roomRef) {
-  if(G.timerInterval) clearInterval(G.timerInterval);
-  roomRef.off(); 
-  switchScreen('result');
-  
-  const p1 = G.myName, p2 = G.opName;
-  let icon = '🤝', title = 'เสมอ!', sub = 'จบการแข่งขัน';
-
-  if (G.p1Hp <= 0 && G.p2Hp <= 0) {
-    title = 'เสมอ! เลือบหมดพร้อมกัน';
-  } else if (G.isHost && G.p1Hp > 0) {
-    icon = '🏅'; title = 'คุณชนะ!'; sub = `คะแนนของคุณ: ${G.p1Score}`;
-  } else if (!G.isHost && G.p2Hp > 0) {
-    icon = '🏅'; title = 'คุณชนะ!'; sub = `คะแนนของคุณ: ${G.p2Score}`;
-  } else {
-    icon = '💀'; title = 'คุณแพ้!'; sub = 'พยายามใหม่อีกครั้งนะ';
-  }
-
-  document.getElementById('rIcon').textContent = icon;
-  document.getElementById('rTitle').textContent = title;
-  document.getElementById('rSub').textContent = sub;
-  document.getElementById('rDet').innerHTML = `คะแนนรวมทั้งหมด <br> ${p1}: ${G.p1Score} แต้ม | ${p2}: ${G.p2Score} แต้ม`;
-  
-  sessionStorage.clear(); // ล้างความจำเมื่อเกมจบ
-}
-
-function startBotGame() {
-  alert("โหมดเล่นกับบอทกำลังปิดปรับปรุงชั่วคราวเพื่อรองรับระบบออนไลน์เต็มรูปแบบ!");
-}
-
-// 👑 [ส่วนสำคัญที่สุด] บังคับให้เริ่มหน้าแรกและเคลียร์ความจำทุกครั้งที่เปิด/รีเฟรชเว็บ
-document.addEventListener("DOMContentLoaded", () => {
-  // 1. เคลียร์คิวเก่าใน Firebase ที่หลงเหลือจากเครื่องนี้ก่อนหน้า (ป้องกันปัญหาคิวมั่ว)
-  const oldQueueKey = sessionStorage.getItem('my_queue_key');
-  if (oldQueueKey) {
-    database.ref('queue/' + oldQueueKey).remove();
-  }
-  
-  // 2. เคลียร์พื้นที่ความจำในบราวเซอร์ทั้งหมดทิ้งเพื่อให้เริ่มใหม่
-  sessionStorage.clear();
-  
-  // 3. เคลียร์ช่องพิมพ์ชื่อให้ว่าง
-  const userInput = document.getElementById('usernameInput');
-  if (userInput) userInput.value = '';
-
-  // 4. บังคับย้ายกลับไปเปิดหน้าแรก (หน้าล็อกอิน) เสมอ
-  switchScreen('home');
-
-  // ผูกมัดปุ่มสั่งการ
-  const actionBtns = document.querySelectorAll('.action-btn');
-  if(actionBtns.length >= 2) {
-    actionBtns[0].onclick = startBotGame; 
-    actionBtns[1].onclick = startMatchmaking; 
-  }
-  const cancelBtn = document.getElementById('cancelMatchBtn');
-  if(cancelBtn) cancelBtn.onclick = cancelMatchmaking;
 });
 </script>
 </body>
