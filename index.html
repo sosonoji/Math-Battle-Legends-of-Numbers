@@ -582,7 +582,6 @@ function startMatchmaking() {
   const nameInput = document.getElementById('usernameInput').value.trim();
   G.myName = nameInput || "Player_" + Math.floor(Math.random() * 1000);
   
-  // บันทึกชื่อผู้เล่นคนนี้ไว้ในเครื่องชั่วคราวขณะเล่นเกม
   sessionStorage.setItem('current_username', G.myName);
   
   switchScreen('match'); 
@@ -596,7 +595,6 @@ function startMatchmaking() {
     roomId: ""
   });
 
-  // บันทึกคีย์คิวปัจจุบันไว้เคลียร์ตอนรีเฟรชหน้าเว็บ
   sessionStorage.setItem('my_queue_key', myQueueRef.key);
   myQueueRef.onDisconnect().remove();
 
@@ -893,7 +891,7 @@ function endGameOnline(roomRef) {
   let icon = '🤝', title = 'เสมอ!', sub = 'จบการแข่งขัน';
 
   if (G.p1Hp <= 0 && G.p2Hp <= 0) {
-    title = 'เสมอ! เลือบหมดพร้อมกัน';
+    title = 'เสมอ! เลือดหมดพร้อมกัน';
   } else if (G.isHost && G.p1Hp > 0) {
     icon = '🏅'; title = 'คุณชนะ!'; sub = `คะแนนของคุณ: ${G.p1Score}`;
   } else if (!G.isHost && G.p2Hp > 0) {
@@ -907,43 +905,28 @@ function endGameOnline(roomRef) {
   document.getElementById('rSub').textContent = sub;
   document.getElementById('rDet').innerHTML = `คะแนนรวมทั้งหมด <br> ${p1}: ${G.p1Score} แต้ม | ${p2}: ${G.p2Score} แต้ม`;
   
-  sessionStorage.clear(); // ล้างความจำเมื่อเกมจบ
+  sessionStorage.clear(); 
 }
 
-function startBotGame() {
-  alert("โหมดเล่นกับบอทกำลังปิดปรับปรุงชั่วคราวเพื่อรองรับระบบออนไลน์เต็มรูปแบบ!");
+// 👑 ระบบเคลียร์ประวัติเก่าเมื่อเปิดหน้าเว็บใหม่ โดยไม่ไปปิดกั้นปุ่มอื่น
+const oldQueueKey = sessionStorage.getItem('my_queue_key');
+if (oldQueueKey) {
+  database.ref('queue/' + oldQueueKey).remove();
 }
+sessionStorage.clear();
 
-// 👑 [ส่วนสำคัญที่สุด] บังคับให้เริ่มหน้าแรกและเคลียร์ความจำทุกครั้งที่เปิด/รีเฟรชเว็บ
-document.addEventListener("DOMContentLoaded", () => {
-  // 1. เคลียร์คิวเก่าใน Firebase ที่หลงเหลือจากเครื่องนี้ก่อนหน้า (ป้องกันปัญหาคิวมั่ว)
-  const oldQueueKey = sessionStorage.getItem('my_queue_key');
-  if (oldQueueKey) {
-    database.ref('queue/' + oldQueueKey).remove();
-  }
-  
-  // 2. เคลียร์พื้นที่ความจำในบราวเซอร์ทั้งหมดทิ้งเพื่อให้เริ่มใหม่
-  sessionStorage.clear();
-  
-  // 3. เคลียร์ช่องพิมพ์ชื่อให้ว่าง
-  const userInput = document.getElementById('usernameInput');
-  if (userInput) userInput.value = '';
+const userInput = document.getElementById('usernameInput');
+if (userInput) userInput.value = '';
 
-  // 4. บังคับย้ายกลับไปเปิดหน้าแรก (หน้าล็อกอิน) เสมอ
-  switchScreen('home');
-
-  // ผูกมัดปุ่มสั่งการ
-  const actionBtns = document.querySelectorAll('.action-btn');
-  if(actionBtns.length >= 2) {
-    actionBtns[0].onclick = startBotGame; 
-    actionBtns[1].onclick = startMatchmaking; 
-  }
-  const cancelBtn = document.getElementById('cancelMatchBtn');
-  if(cancelBtn) cancelBtn.onclick = cancelMatchmaking;
-});
+// บังคับกำหนดให้ฟังก์ชันค้นหาออนไลน์ไปทำงานเมื่อกดปุ่ม "🌐 ค้นหาคู่แข่ง" เท่านั้น
+const matchBtn = document.querySelector('.action-btn[onclick*="match"]') || document.querySelector('.action-btn:nth-child(2)');
+if (matchBtn) {
+    matchBtn.removeAttribute('onclick');
+    matchBtn.addEventListener('click', startMatchmaking);
+}
+const cancelBtn = document.getElementById('cancelMatchBtn');
+if(cancelBtn) cancelBtn.onclick = cancelMatchmaking;
 </script>
-</body>
-</html>
 </script>
 </body>
 </html>
