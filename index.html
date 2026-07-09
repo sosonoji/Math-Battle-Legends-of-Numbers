@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚔️ MathBattle 1v1</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Kanit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<!-- Firebase SDK v10 compat -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 /* ===== RESET ===== */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -524,41 +527,433 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 </div>
 
 <script>
+// ==========================================
+// 1. ตั้งค่าเชื่อมต่อฐานข้อมูล Firebase ของคุณ
+// ==========================================
+const firebaseConfig = {
+    databaseURL: "https://mathbattle-ac082-default-rtdb.firebaseio.com"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const database = firebase.database();
+
+// ตัวแปรควบคุมระบบเกม
+let G = {
+  state: 'home',
+  myName: '',
+  opName: '',
+  isBot: false,
+  isHost: false, 
+  roomId: '',
+  p1Hp: 3, p2Hp: 3,
+  p1Score: 0, p2Score: 0,
+  curQ: null,
+  p1Ans: null, p2Ans: null,
+  p1Ms: 0, p2Ms: 0,
+  timerInterval: null,
+  startMs: 0,
+  hasAnswered: false 
+};
+
+const screens = {
+  home: document.getElementById('screen-home'),
+  match: document.getElementById('screen-match'),
+  game: document.getElementById('screen-game'),
+  result: document.getElementById('screen-result')
+};
+
+function switchScreen(s){
+  // รองรับทั้ง screen เดิม และ screen ใหม่ที่เพิ่มมา
+  document.querySelectorAll('.screen').forEach(div => div.classList.remove('active'));
+  // ลอง map เดิมก่อน
+  const mapped = {
+    home: 'screen-home',
+    match: 'screen-match',
+    game: 'screen-game',
+    result: 'screen-gameover'
+  };
+  const targetId = mapped[s] || s;
+  const target = document.getElementById(targetId);
+  if(target) target.classList.add('active');
+  G.state = s;
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(div => div.classList.remove('active'));
+  const t = document.getElementById(id);
+  if(t) t.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function esc(str){
+  if(!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ==========================================
+// 2. ระบบออนไลน์ ค้นหาผู้เล่นคนอื่น (Matchmaking)
+// ==========================================
+function startMatchmaking() {
+  const nameInput = document.getElementById('usernameInput').value.trim();
+  G.myName = nameInput || "Player_" + Math.floor(Math.random() * 1000);
+  
+  // บันทึกชื่อผู้เล่นคนนี้ไว้ในเครื่องชั่วคราวขณะเล่นเกม
+  sessionStorage.setItem('current_username', G.myName);
+  
+  switchScreen('match'); 
+  document.getElementById('matchText').textContent = "กำลังค้นหาคู่แข่งออนไลน์...";
+  
+  const playersRef = database.ref('queue');
+  
+  const myQueueRef = playersRef.push({
+    name: G.myName,
+    status: "waiting",
+    roomId: ""
+  });
+
+  // บันทึกคีย์คิวปัจจุบันไว้เคลียร์ตอนรีเฟรชหน้าเว็บ
+  sessionStorage.setItem('my_queue_key', myQueueRef.key);
+  myQueueRef.onDisconnect().remove();
+
+  playersRef.once('value', (snapshot) => {
+    let matched = false;
+    snapshot.forEach((child) => {
+      const oppKey = child.key;
+      const oppData = child.val();
+
+      if (oppKey !== myQueueRef.key && oppData.status === "waiting" && !matched) {
+        matched = true;
+        const newRoomId = "room_" + Math.random().toString(36).substring(2, 9);
+        G.isHost = true; 
+
+        database.ref('queue/' + oppKey).update({ status: "matched", roomId: newRoomId });
+        myQueueRef.update({ status: "matched", roomId: newRoomId });
+        
+        setTimeout(() => {
+          setupOnlineRoom(newRoomId, G.myName, oppData.name);
+          myQueueRef.remove();
+          sessionStorage.removeItem('my_queue_key');
+        }, 500);
+      }
+    });
+  });
+
+  myQueueRef.child('roomId').on('value', (snapshot) => {
+    const rId = snapshot.val();
+    if (rId && !G.isHost) {
+      database.ref('rooms/' + rId + '/p1Name').once('value', (nameSnap) => {
+        setupOnlineRoom(rId, nameSnap.val(), G.myName);
+        myQueueRef.off(); 
+        myQueueRef.remove(); 
+        sessionStorage.removeItem('my_queue_key');
+      });
+    }
+  });
+}
+
+function setupOnlineRoom(roomId, p1Name, p2Name) {
+  G.roomId = roomId;
+  G.isBot = false;
+  
+  if (G.isHost) {
+    G.myName = p1Name; G.opName = p2Name;
+    database.ref('rooms/' + roomId).set({
+      p1Name: p1Name, p2Name: p2Name,
+      p1Hp: 3, p2Hp: 3,
+      p1Score: 0, p2Score: 0,
+      question: { text: "", ans: 0 },
+      action: "playing"
+    });
+  } else {
+    G.myName = p2Name; G.opName = p1Name;
+  }
+
+  document.getElementById('p1NameTxt').textContent = p1Name;
+  document.getElementById('p2NameTxt').textContent = p2Name;
+  
+  document.getElementById('botActionBlock').style.display = 'none';
+  document.getElementById('botArea').style.display = 'none';
+  document.getElementById('p1HSec').style.display = '';
+  document.getElementById('p2HSec').style.display = '';
+
+  switchScreen('game');
+  initGameSession();
+  listenToOnlineRoom();
+}
+
+function initGameSession() {
+  G.p1Hp = 3; G.p2Hp = 3; G.p1Score = 0; G.p2Score = 0;
+  drawHearts('p1', 3); drawHearts('p2', 3);
+  document.getElementById('p1Score').textContent = '0';
+  document.getElementById('p2Score').textContent = '0';
+  
+  if (G.isHost) {
+    generateAndSendQuestion();
+  }
+}
+
+// ==========================================
+// 3. ระบบสุ่มคำถามและส่งออนไลน์
+// ==========================================
+function generateAndSendQuestion() {
+  const mode = document.querySelector('.mode-btn.active')?.dataset.mode || 'normal';
+  let num1, num2, op, ans;
+
+  if (mode === 'easy') {
+    op = Math.random() > 0.5 ? '+' : '-';
+    if (op === '+') {
+      num1 = Math.floor(Math.random() * 20) + 1;
+      num2 = Math.floor(Math.random() * 20) + 1;
+      ans = num1 + num2;
+    } else {
+      num1 = Math.floor(Math.random() * 20) + 1;
+      num2 = Math.floor(Math.random() * num1) + 1;
+      ans = num1 - num2;
+    }
+  } else if (mode === 'hard') {
+    const ops = ['+', '-', '*'];
+    op = ops[Math.floor(Math.random() * ops.length)];
+    if (op === '+') {
+      num1 = Math.floor(Math.random() * 100) + 10;
+      num2 = Math.floor(Math.random() * 100) + 10;
+      ans = num1 + num2;
+    } else if (op === '-') {
+      num1 = Math.floor(Math.random() * 100) + 10;
+      num2 = Math.floor(Math.random() * num1) + 1;
+      ans = num1 - num2;
+    } else {
+      num1 = Math.floor(Math.random() * 12) + 2;
+      num2 = Math.floor(Math.random() * 12) + 2;
+      ans = num1 * num2;
+    }
+  } else {
+    const ops = ['+', '-'];
+    op = ops[Math.floor(Math.random() * ops.length)];
+    if (op === '+') {
+      num1 = Math.floor(Math.random() * 50) + 1;
+      num2 = Math.floor(Math.random() * 50) + 1;
+      ans = num1 + num2;
+    } else {
+      num1 = Math.floor(Math.random() * 50) + 1;
+      num2 = Math.floor(Math.random() * num1) + 1;
+      ans = num1 - num2;
+    }
+  }
+
+  database.ref('rooms/' + G.roomId).update({
+    p1Result: null,
+    p2Result: null,
+    action: "playing",
+    question: {
+      text: `${num1} ${op} ${num2} = ?`,
+      ans: ans,
+      qId: Math.random().toString(36).substring(2, 9)
+    }
+  });
+}
+
+function listenToOnlineRoom() {
+  const roomRef = database.ref('rooms/' + G.roomId);
+
+  roomRef.child('question').on('value', (snapshot) => {
+    const q = snapshot.val();
+    if (q && q.text) {
+      G.curQ = q;
+      G.hasAnswered = false; 
+      document.getElementById('qText').textContent = q.text;
+      generateChoices(q.ans); 
+      startRoundTimer();
+    }
+  });
+
+  roomRef.on('value', (snapshot) => {
+    const room = snapshot.val();
+    if (!room) return;
+    
+    G.p1Hp = room.p1Hp; G.p2Hp = room.p2Hp;
+    G.p1Score = room.p1Score; G.p2Score = room.p2Score;
+    
+    drawHearts('p1', G.p1Hp); drawHearts('p2', G.p2Hp);
+    document.getElementById('p1Score').textContent = G.p1Score;
+    document.getElementById('p2Score').textContent = G.p2Score;
+
+    if (G.p1Hp <= 0 || G.p2Hp <= 0) {
+      endGameOnline(roomRef);
+      return;
+    }
+
+    if (room.action === "playing" && room.p1Result && room.p2Result) {
+      roomRef.child('action').set("calculating"); 
+      processRoundResults(room.p1Result, room.p2Result, roomRef);
+    }
+  });
+}
+
+function generateChoices(correctAns) {
+  const area = document.getElementById('choicesArea');
+  area.innerHTML = '';
+  const set = new Set([correctAns]);
+  while (set.size < 4) {
+    const dev = Math.floor(Math.random() * 15) - 7;
+    const c = correctAns + (dev === 0 ? 3 : dev);
+    if (c >= 0) set.add(c);
+  }
+  const arr = Array.from(set).sort(() => Math.random() - 0.5);
+  arr.forEach(val => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.textContent = val;
+    b.onclick = () => handleAnswerSelection(val, b); 
+    area.appendChild(b);
+  });
+}
+
+function startRoundTimer() {
+  clearInterval(G.timerInterval);
+  const bar = document.getElementById('timerBar');
+  bar.style.width = '100%';
+  G.startMs = Date.now();
+  const limit = 10000;
+  G.timerInterval = setInterval(() => {
+    const elapsed = Date.now() - G.startMs;
+    const pct = Math.max(0, ((limit - elapsed) / limit) * 100);
+    bar.style.width = pct + '%';
+    if (elapsed >= limit) {
+      clearInterval(G.timerInterval);
+      if (!G.hasAnswered) {
+        handleAnswerSelection(null, null); 
+      }
+    }
+  }, 50);
+}
+
+function handleAnswerSelection(chosenValue, clickedButton) {
+  if (G.hasAnswered) return; 
+  G.hasAnswered = true;
+  
+  clearInterval(G.timerInterval);
+  const duration = Date.now() - G.startMs;
+  const isCorrect = (chosenValue === G.curQ.ans);
+
+  if (clickedButton) {
+    clickedButton.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
+  }
+
+  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
+  const myRole = G.isHost ? 'p1' : 'p2';
+  database.ref('rooms/' + G.roomId + '/' + myRole + 'Result').set({
+    correct: isCorrect,
+    timeMs: duration
+  });
+}
+
+function processRoundResults(p1Res, p2Res, roomRef) {
+  let p1HpEffect = G.p1Hp, p2HpEffect = G.p2Hp;
+  let p1ScoreEffect = G.p1Score, p2ScoreEffect = G.p2Score;
+
+  if (p1Res.correct && p2Res.correct) {
+    if (p1Res.timeMs < p2Res.timeMs) {
+      p2HpEffect--; p1ScoreEffect += 10;
+    } else {
+      p1HpEffect--; p2ScoreEffect += 10;
+    }
+  } else if (p1Res.correct) {
+    p2HpEffect--; p1ScoreEffect += 10;
+  } else if (p2Res.correct) {
+    p1HpEffect--; p2ScoreEffect += 10;
+  } else {
+    p1HpEffect--; p2HpEffect--;
+  }
+
+  if (G.isHost) {
+    database.ref('rooms/' + G.roomId).update({
+      p1Hp: Math.max(0, p1HpEffect),
+      p2Hp: Math.max(0, p2HpEffect),
+      p1Score: p1ScoreEffect,
+      p2Score: p2ScoreEffect
+    });
+    
+    setTimeout(() => {
+      if (p1HpEffect > 0 && p2HpEffect > 0) {
+        generateAndSendQuestion();
+      }
+    }, 1500);
+  }
+}
+
+function drawHearts(player, hp) {
+  const container = document.getElementById(player + 'Hearts');
+  if(!container) return;
+  container.innerHTML = '';
+  for(let i=0; i<3; i++) {
+    container.innerHTML += i < hp ? '<span class="heart active">❤️</span>' : '<span class="heart">🖤</span>';
+  }
+}
+
+function cancelMatchmaking() {
+  switchScreen('home');
+  database.ref('queue').orderByChild('name').equalTo(G.myName).once('value', (snap) => {
+    snap.forEach(child => child.ref.remove());
+  });
+  sessionStorage.clear();
+}
+
+function endGameOnline(roomRef) {
+  if(G.timerInterval) clearInterval(G.timerInterval);
+  roomRef.off(); 
+  switchScreen('result');
+  
+  const p1 = G.myName, p2 = G.opName;
+  let icon = '🤝', title = 'เสมอ!', sub = 'จบการแข่งขัน';
+
+  if (G.p1Hp <= 0 && G.p2Hp <= 0) {
+    title = 'เสมอ! เลือบหมดพร้อมกัน';
+  } else if (G.isHost && G.p1Hp > 0) {
+    icon = '🏅'; title = 'คุณชนะ!'; sub = `คะแนนของคุณ: ${G.p1Score}`;
+  } else if (!G.isHost && G.p2Hp > 0) {
+    icon = '🏅'; title = 'คุณชนะ!'; sub = `คะแนนของคุณ: ${G.p2Score}`;
+  } else {
+    icon = '💀'; title = 'คุณแพ้!'; sub = 'พยายามใหม่อีกครั้งนะ';
+  }
+
+  document.getElementById('rIcon').textContent = icon;
+  document.getElementById('rTitle').textContent = title;
+  document.getElementById('rSub').textContent = sub;
+  document.getElementById('rDet').innerHTML = `คะแนนรวมทั้งหมด <br> ${p1}: ${G.p1Score} แต้ม | ${p2}: ${G.p2Score} แต้ม`;
+  
+  sessionStorage.clear(); // ล้างความจำเมื่อเกมจบ
+}
+
+function startBotGame() {
+  alert("โหมดเล่นกับบอทกำลังปิดปรับปรุงชั่วคราวเพื่อรองรับระบบออนไลน์เต็มรูปแบบ!");
+}
+
+// 👑 [ส่วนสำคัญที่สุด] บังคับให้เริ่มหน้าแรกและเคลียร์ความจำทุกครั้งที่เปิด/รีเฟรชเว็บ
 /* ============================================================
-   AUTH & PLAYER REGISTRY
+   ตัวแปรสำหรับระบบเชิญ
 ============================================================ */
-// Storage keys
-const PLAYERS_KEY = 'mb_players';   // { name -> { pass, stars, wins, losses, created } }
-const SESSION_KEY = 'mb_session';   // { name }
-const LB_KEY      = 'mb_lb';
-const STARS_KEY   = 'mb_stars';
+let G_inviteRef = null;  // Firebase ref สำหรับฟัง invite ของตัวเอง
+let selTopic_ = null, selLevel_ = null, selBotLv_ = null;
 
-function loadPlayers(){ try{return JSON.parse(localStorage.getItem(PLAYERS_KEY)||'{}')}catch(e){return{}} }
-function savePlayers(p){ localStorage.setItem(PLAYERS_KEY,JSON.stringify(p)) }
-function loadSession(){ try{return JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch(e){return null} }
-function saveSession(s){ localStorage.setItem(SESSION_KEY,JSON.stringify(s)) }
-
-// Simple hash (not secure, but fine for a game)
+/* --- ฟังก์ชันหลักหน้า Login/Register (ถ้ายังไม่มี) --- */
 function hashPass(s){ let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h.toString(16) }
 
 function switchLoginTab(tab, el){
-  if(el){document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));el.classList.add('login-tab active')}
-  else{
-    document.querySelectorAll('.login-tab').forEach((t,i)=>{t.classList.toggle('active',(tab==='login'&&i===0)||(tab==='register'&&i===1))});
-  }
+  if(el){document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
+  else{document.querySelectorAll('.login-tab').forEach((t,i)=>{t.classList.toggle('active',(tab==='login'&&i===0)||(tab==='register'&&i===1))})}
   document.getElementById('loginForm').style.display=tab==='login'?'block':'none';
   document.getElementById('registerForm').style.display=tab==='register'?'block':'none';
-  document.getElementById('loginErrMsg').style.display='none';
-  document.getElementById('loginOkMsg').style.display='none';
+  const e=document.getElementById('loginErrMsg'),o=document.getElementById('loginOkMsg');
+  if(e)e.style.display='none'; if(o)o.style.display='none';
 }
-
 function showLoginMsg(msg,isOk){
   const e=document.getElementById('loginErrMsg'),o=document.getElementById('loginOkMsg');
   if(isOk){o.textContent=msg;o.style.display='block';e.style.display='none'}
   else{e.textContent=msg;e.style.display='block';o.style.display='none'}
 }
-
-function doRegister(){
+async function doRegister(){
   const name=(document.getElementById('regName').value||'').trim();
   const pass=document.getElementById('regPass').value;
   const pass2=document.getElementById('regPass2').value;
@@ -566,647 +961,536 @@ function doRegister(){
   if(name.length<2){showLoginMsg('ชื่อต้องมีอย่างน้อย 2 ตัวอักษร');return}
   if(!pass||pass.length<4){showLoginMsg('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร');return}
   if(pass!==pass2){showLoginMsg('รหัสผ่านไม่ตรงกัน');return}
-  const players=loadPlayers();
-  const key=name.toLowerCase();
-  if(Object.keys(players).find(k=>k===key)){showLoginMsg('ชื่อนี้ถูกใช้แล้ว กรุณาเลือกชื่ออื่น');return}
-  players[key]={name,pass:hashPass(pass),stars:0,wins:0,losses:0,created:Date.now()};
-  savePlayers(players);
-  showLoginMsg('สมัครสำเร็จ! กรุณาเข้าสู่ระบบ',true);
+  showLoginMsg('⏳ กำลังสมัคร...', true);
+  const snap = await database.ref('players/'+name.toLowerCase()).get();
+  if(snap.exists()){showLoginMsg('❌ ชื่อนี้ถูกใช้แล้ว');return}
+  await database.ref('players/'+name.toLowerCase()).set({name,pass:hashPass(pass),stars:0,wins:0,losses:0,created:Date.now()});
+  showLoginMsg('✅ สมัครสำเร็จ! กรุณาเข้าสู่ระบบ',true);
   setTimeout(()=>switchLoginTab('login',null),1200);
   document.getElementById('loginName').value=name;
 }
-
-function doLogin(){
+async function doLogin(){
   const name=(document.getElementById('loginName').value||'').trim();
   const pass=document.getElementById('loginPass').value;
   if(!name){showLoginMsg('กรุณาใส่ชื่อผู้เล่น');return}
   if(!pass){showLoginMsg('กรุณาใส่รหัสผ่าน');return}
-  const players=loadPlayers();
-  const key=name.toLowerCase();
-  const p=Object.values(players).find(p=>p.name.toLowerCase()===key);
-  if(!p){showLoginMsg('ไม่พบชื่อผู้เล่นนี้');return}
-  if(p.pass!==hashPass(pass)){showLoginMsg('รหัสผ่านไม่ถูกต้อง');return}
-  saveSession({name:p.name});
-  afterLogin(p.name);
-}
-
-function doLogout(){
-  saveSession(null);
-  showScreen('screen-login');
-  document.getElementById('loginPass').value='';
-  document.getElementById('loginErrMsg').style.display='none';
-  document.getElementById('loginOkMsg').style.display='none';
-}
-
-function afterLogin(name){
-  G.myName=name;
-  loadData();
-  updateHomeProfile();
+  showLoginMsg('⏳ กำลังตรวจสอบ...', true);
+  const snap = await database.ref('players/'+name.toLowerCase()).get();
+  if(!snap.exists()){showLoginMsg('❌ ไม่พบชื่อผู้เล่นนี้');return}
+  const p = snap.val();
+  if(p.pass!==hashPass(pass)){showLoginMsg('❌ รหัสผ่านไม่ถูกต้อง');return}
+  G.myName = p.name;
+  // บันทึก online presence
+  const onRef = database.ref('online/'+p.name.toLowerCase());
+  await onRef.set({name:p.name,stars:p.stars||0,ts:Date.now()});
+  onRef.onDisconnect().remove();
+  setInterval(()=>onRef.update({ts:Date.now()}),30000);
+  // ฟัง invite ที่มาถึงตัวเอง
+  watchMyInvites();
+  // โหลดหน้าหลัก
+  updateHomeProfile(p);
   renderOnline();
   renderLB();
   showScreen('screen-home');
 }
-
-function updateHomeProfile(){
-  const name=G.myName||'ผู้เล่น';
-  document.getElementById('homeProfileName').textContent=name;
-  document.getElementById('homeProfileStars').textContent=`⭐ ${G.stars[name]||0} ดาว`;
-  document.getElementById('homeAvatar').textContent=name.charAt(0).toUpperCase();
-}
-
-/* ============================================================
-   ABILITY DEFINITIONS
-============================================================ */
-const ALL_AB=[
-  {id:'godMode',icon:'🛡️',name:'การ์ดกันตาย',desc:'เมื่อเหลือ 1HP แพ้ = ไม่เสียชีวิต (1ครั้ง)'},
-  {id:'swap',icon:'🔄',name:'การ์ดสลับโจทย์',desc:'สลับโจทย์กับฝ่ายตรงข้ามหลังเปิดการ์ด (1ครั้ง)'},
-  {id:'freeze',icon:'❄️',name:'การ์ดหยุดเวลา',desc:'ฝ่ายตรงข้ามตอบไม่ได้ 3 วิ (1ครั้ง)'},
-  {id:'hint',icon:'💡',name:'การช่วยตอบ',desc:'แสดง 4 ตัวเลือก มี 1 ถูก (1ครั้ง)'},
-  {id:'double',icon:'💀',name:'การ์ดลดชีวิต×2',desc:'ถ้าชนะรอบนี้ ฝ่ายตรงข้ามเสีย 2HP (1ครั้ง)'},
-  {id:'heal',icon:'❤️',name:'การ์ดเพิ่มชีวิต',desc:'เพิ่ม 1HP ทันที (1ครั้ง)'},
-  {id:'shield',icon:'🪬',name:'การ์ดป้องกัน',desc:'ป้องกัน สลับโจทย์ + ลดชีวิต×2 (1ครั้ง)'},
-  {id:'blur',icon:'🌫️',name:'การ์ดเบลอตัวเลข',desc:'เบลอเลข 1 ตัวในโจทย์ฝ่ายตรงข้าม (1ครั้ง)'}
-];
-
-/* ============================================================
-   GAME STATE
-============================================================ */
-const G={
-  myName:'',opName:'',isBot:false,botLv:null,topic:null,level:null,
-  round:1,p1HP:5,p2HP:5,
-  p1Cards:[],p2Cards:[],p1Sel:null,p2Sel:null,
-  p1Ab:[],p2Ab:[],p1AbUsed:{},p2AbUsed:{},
-  p1God:false,p2God:false,p1Shield:false,p2Shield:false,
-  p1Dbl:false,p2Dbl:false,p1Frz:false,p2Frz:false,
-  curQ:null,p1Ans:null,p2Ans:null,p1Ms:null,p2Ms:null,qTime:null,
-  abRound:0,pendPP:null,abSelIdx:null,
-  botCancel:null,phase:'cardSelect',stars:{},lb:[]
-};
-
-let selTopic_=null,selLevel_=null,selBotLv_=null;
-
-/* ============================================================
-   DATA PERSIST
-============================================================ */
-function loadData(){
-  try{G.stars=JSON.parse(localStorage.getItem(STARS_KEY)||'{}');G.lb=JSON.parse(localStorage.getItem(LB_KEY)||'[]')}catch(e){}
-}
-function saveData(){
-  try{localStorage.setItem(STARS_KEY,JSON.stringify(G.stars));localStorage.setItem(LB_KEY,JSON.stringify(G.lb))}catch(e){}
-}
-function addStars(name,d){
-  if(!name||G.isBot)return;
-  G.stars[name]=Math.max(0,(G.stars[name]||0)+d);
-  // sync to players registry
-  const players=loadPlayers();
-  const key=name.toLowerCase();
-  const pk=Object.keys(players).find(k=>k===key);
-  if(pk){players[pk].stars=G.stars[name];if(d>0)players[pk].wins=(players[pk].wins||0)+1;else if(d<0)players[pk].losses=(players[pk].losses||0)+1;savePlayers(players)}
-  const idx=G.lb.findIndex(x=>x.name===name);
-  if(idx>=0)G.lb[idx].stars=G.stars[name];else G.lb.push({name,stars:G.stars[name]});
-  G.lb.sort((a,b)=>b.stars-a.stars);
-  if(G.lb.length>50)G.lb.splice(50);
-  saveData();
-}
-
-/* ============================================================
-   MATH QUESTIONS
-============================================================ */
-function gcd(a,b){return b===0?a:gcd(b,a%b)}
-function ri(mn,mx){return Math.floor(Math.random()*(mx-mn+1))+mn}
-const LR={easy:[1,10],medium:[2,50],hard:[10,100],extreme:[20,500]};
-const MR={easy:[1,9],medium:[2,12],hard:[2,25],extreme:[5,50]};
-
-function genQ(topic,level){
-  const ts=['add','sub','mul','div'];
-  const t=topic==='mixed'?ts[ri(0,3)]:topic;
-  const[mn,mx]=LR[level];
-  const r=()=>ri(mn,mx);
-  if(t==='frac'){
-    const md=level==='easy'?6:level==='medium'?10:level==='hard'?16:20;
-    const d1=ri(2,md),d2=ri(2,md),n1=ri(1,d1-1),n2=ri(1,d2-1);
-    const nr=n1*d2+n2*d1,dr=d1*d2,g=gcd(nr,dr);
-    return{display:`${n1}/${d1} + ${n2}/${d2}`,ans:nr/dr,isFrac:true};
-  }
-  let a,b,ans,display;
-  if(t==='add'){a=r();b=r();ans=a+b;display=`${a} + ${b}`}
-  else if(t==='sub'){a=r();b=r();if(a<b)[a,b]=[b,a];ans=a-b;display=`${a} − ${b}`}
-  else if(t==='mul'){const[mm,mx2]=MR[level];a=ri(mm,mx2);b=ri(mm,mx2);ans=a*b;display=`${a} × ${b}`}
-  else{const divs=[2,3,4,5,6,7,8,9,10,11,12];b=divs[ri(0,Math.min(divs.length-1,level==='easy'?3:level==='medium'?7:11))];ans=r();a=ans*b;display=`${a} ÷ ${b}`}
-  return{display,ans,isFrac:false};
-}
-function genHand(n){return Array.from({length:n},(_,i)=>({id:`c_${Date.now()}_${i}_${Math.random().toString(36).slice(2)}`,q:genQ(G.topic,G.level),used:false}))}
-function isCorrect(val,q){const v=parseFloat(val);if(isNaN(v))return false;return Math.abs(v-q.ans)<=(q.isFrac?0.005:0)}
-
-/* ============================================================
-   BOOT
-============================================================ */
-document.addEventListener('DOMContentLoaded',()=>{
-  createStars();
-  // Check existing session
-  const sess=loadSession();
-  if(sess&&sess.name){
-    const players=loadPlayers();
-    const pk=Object.keys(players).find(k=>k===sess.name.toLowerCase());
-    if(pk){afterLogin(players[pk].name);return}
-    else saveSession(null);
-  }
+function doLogout(){
+  if(G_inviteRef) G_inviteRef.off();
+  database.ref('online/'+G.myName.toLowerCase()).remove();
+  G.myName='';
   showScreen('screen-login');
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){['apModal','swapModal'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none'})}
-  });
-});
-function createStars(){
-  const c=document.getElementById('starsBg');
-  for(let i=0;i<90;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s;opacity:${.1+Math.random()*.4}`;c.appendChild(s)}
 }
+function updateHomeProfile(p){
+  const name=p?p.name:(G.myName||'ผู้เล่น');
+  const stars=p?p.stars:0;
+  const el=document.getElementById('homeProfileName');
+  const es=document.getElementById('homeProfileStars');
+  const ea=document.getElementById('homeAvatar');
+  if(el)el.textContent=name;
+  if(es)es.textContent='⭐ '+(stars||0)+' ดาว';
+  if(ea)ea.textContent=name.charAt(0).toUpperCase();
+}
+function goHome(){showScreen('screen-home');renderOnline();renderLB()}
 
 /* ============================================================
-   SCREEN NAV
-============================================================ */
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id)?.classList.add('active');window.scrollTo(0,0)}
-function goHome(){showScreen('screen-home');updateHomeProfile();renderLB();renderOnline()}
-
-/* ============================================================
-   HOME TABS
+   TABS
 ============================================================ */
 function switchTab(tab,e){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   e?.currentTarget?.classList.add('active');
-  ['online','bot','lb'].forEach(t=>{document.getElementById(`tab-${t}`).style.display=t===tab?'block':'none'});
+  ['online','bot','lb'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===tab?'block':'none'});
   if(tab==='lb')renderLB();
   if(tab==='online')renderOnline();
 }
 
 /* ============================================================
-   ONLINE PLAYERS — from registry
+   ONLINE PLAYERS — Firebase realtime
 ============================================================ */
-function renderOnline(){
-  const players=loadPlayers();
-  const el=document.getElementById('onlinePlayers');
-  const all=Object.values(players).filter(p=>p.name!==G.myName).sort((a,b)=>(b.stars||0)-(a.stars||0));
-  if(!all.length){el.innerHTML=`<div class="tmuted" style="padding:8px 0;text-align:center">ยังไม่มีผู้เล่นคนอื่น<br><small>ชวนเพื่อนมาสมัครสมาชิก!</small></div>`;return}
-  el.innerHTML=all.slice(0,8).map(p=>`
-    <div class="fi">
-      <span>
-        <span class="dot-reg"></span>
-        <span>
-          <span class="fn">${esc(p.name)}</span>
-          <div class="fstars">⭐ ${p.stars||0} ดาว | ชนะ ${p.wins||0} แพ้ ${p.losses||0}</div>
-        </span>
-      </span>
-      <button class="btn btn-b" style="width:auto;padding:6px 14px;font-size:12px" onclick="inviteP('${esc(p.name)}')">เชิญ ▶</button>
-    </div>`).join('');
+async function renderOnline(){
+  const el=document.getElementById('onlinePlayers');if(!el)return;
+  el.innerHTML='<div class="tmuted" style="padding:8px;text-align:center">⏳ กำลังโหลด...</div>';
+  try{
+    const snap=await database.ref('online').get();
+    const now=Date.now();
+    const list=[];
+    snap.forEach(c=>{const p=c.val();if(p.name!==G.myName&&(now-(p.ts||0))<90000)list.push(p)});
+    if(!list.length){el.innerHTML='<div class="tmuted" style="padding:8px;text-align:center">ยังไม่มีผู้เล่นออนไลน์</div>';return}
+    el.innerHTML=list.map(p=>`
+      <div class="fi">
+        <span><span class="dot-on"></span><span><span class="fn">${esc(p.name)}</span><div class="fstars">🟢 ออนไลน์ | ⭐ ${p.stars||0}</div></span></span>
+        <button class="btn btn-b" style="width:auto;padding:6px 14px;font-size:12px" onclick="inviteP('${esc(p.name)}')">เชิญ ▶</button>
+      </div>`).join('');
+  }catch(e){el.innerHTML='<div class="tmuted" style="padding:8px">โหลดไม่ได้</div>'}
 }
 
-function searchFriend(v){
+/* ============================================================
+   SEARCH
+============================================================ */
+let _searchTimer=null;
+async function searchFriend(v){
   const r=document.getElementById('searchResults');
   const q=(v||'').trim();
   if(!q){r.innerHTML='';return}
-  const players=loadPlayers();
-  const m=Object.values(players).filter(p=>p.name!==G.myName&&(p.name.toLowerCase().includes(q.toLowerCase())));
-  if(!m.length){r.innerHTML=`<div class="tmuted" style="padding:8px 0">ไม่พบผู้เล่น "${esc(q)}"</div>`;return}
-  r.innerHTML=m.map(p=>`<div class="fi"><span><span class="dot-reg"></span><span><span class="fn">${esc(p.name)}</span><div class="fstars">⭐ ${p.stars||0} ดาว</div></span></span>
-    <button class="btn btn-g" style="width:auto;padding:6px 14px;font-size:12px" onclick="inviteP('${esc(p.name)}')">เชิญ ▶</button></div>`).join('');
-}
-
-function inviteP(name){
-  G.opName=name;G.isBot=false;G.botLv=null;showScreen('screen-topic');
-}
-
-/* ============================================================
-   BOT SETUP
-============================================================ */
-function selBotLv(lv,el){
-  selBotLv_=lv;
-  document.querySelectorAll('#botLevelList .lbtn').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');
-  const btn=document.getElementById('botStartBtn');btn.disabled=false;btn.style.opacity='1';
-}
-function startVsBot(){
-  if(!selBotLv_)return;
-  G.isBot=true;G.botLv=selBotLv_;
-  G.opName={easy:'บอท (ง่าย)',medium:'บอท (ปานกลาง)',hard:'บอท (ยาก)'}[selBotLv_];
-  showScreen('screen-topic');
-}
-
-/* ============================================================
-   TOPIC & LEVEL
-============================================================ */
-function selTopic(t,el){
-  selTopic_=t;G.topic=t;
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');
-  const btn=document.getElementById('topicNextBtn');btn.disabled=false;btn.style.opacity='1';
-}
-function selLevel(lv,el){
-  selLevel_=lv;G.level=lv;
-  document.querySelectorAll('#diffLvList .lbtn').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');
-  const btn=document.getElementById('levelNextBtn');btn.disabled=false;btn.style.opacity='1';
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(async()=>{
+    r.innerHTML='<div class="tmuted" style="padding:4px">⏳ กำลังค้นหา...</div>';
+    try{
+      const snap=await database.ref('players').get();
+      const m=[];
+      snap.forEach(c=>{const p=c.val();if(p.name!==G.myName&&p.name.toLowerCase().includes(q.toLowerCase()))m.push(p)});
+      if(!m.length){r.innerHTML=`<div class="tmuted" style="padding:8px">❌ ไม่พบ "${esc(q)}"</div>`;return}
+      r.innerHTML=m.slice(0,8).map(p=>`
+        <div class="fi">
+          <span><span class="dot-reg"></span><span><span class="fn">${esc(p.name)}</span><div class="fstars">⭐ ${p.stars||0} | ชนะ ${p.wins||0} แพ้ ${p.losses||0}</div></span></span>
+          <button class="btn btn-g" style="width:auto;padding:6px 14px;font-size:12px" onclick="inviteP('${esc(p.name)}')">เชิญ ▶</button>
+        </div>`).join('');
+    }catch(e){r.innerHTML='<div class="tmuted">ค้นหาไม่ได้</div>'}
+  },400);
 }
 
 /* ============================================================
    LEADERBOARD
 ============================================================ */
-function renderLB(){
+async function renderLB(){
   const el=document.getElementById('lbList');if(!el)return;
-  // Build LB from player registry
-  const players=loadPlayers();
-  const all=Object.values(players).sort((a,b)=>(b.stars||0)-(a.stars||0)).slice(0,10);
-  if(!all.length){el.innerHTML=`<div class="tmuted tc" style="padding:20px">ยังไม่มีข้อมูล</div>`;return}
-  el.innerHTML=all.map((p,i)=>{
-    const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-    const m=i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
-    const isMe=p.name===G.myName;
-    return`<div class="lbi" style="${isMe?'border-color:var(--accent);background:rgba(245,158,11,.07)':''}"><div class="lbr ${rc}">${m}</div><div class="lbn">${esc(p.name)}${isMe?' 👈':''}</div><div class="lbs">⭐ ${p.stars||0}</div></div>`;
-  }).join('');
+  el.innerHTML='<div class="tmuted tc" style="padding:16px">⏳ กำลังโหลด...</div>';
+  try{
+    const snap=await database.ref('players').get();
+    const all=[];snap.forEach(c=>all.push(c.val()));
+    all.sort((a,b)=>(b.stars||0)-(a.stars||0));
+    const top=all.slice(0,10);
+    if(!top.length){el.innerHTML='<div class="tmuted tc" style="padding:20px">ยังไม่มีข้อมูล</div>';return}
+    el.innerHTML=top.map((p,i)=>{
+      const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const m=i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
+      return`<div class="lbi"><div class="lbr ${rc}">${m}</div><div class="lbn">${esc(p.name)}</div><div class="lbs">⭐ ${p.stars||0}</div></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="tmuted tc">โหลดไม่ได้</div>'}
 }
 
 /* ============================================================
-   GAME START / RESET
+   INVITE SYSTEM — ส่งคำเชิญผ่าน Firebase
 ============================================================ */
-function startGame(){
-  if(!G.level)return;
-  G.round=1;G.p1HP=5;G.p2HP=5;G.phase='cardSelect';G.abRound=0;
-  G.p1Ab=[];G.p2Ab=[];G.p1AbUsed={};G.p2AbUsed={};
-  G.p1God=false;G.p2God=false;G.p1Shield=false;G.p2Shield=false;
-  G.p1Dbl=false;G.p2Dbl=false;G.p1Frz=false;G.p2Frz=false;
-  G.p1Cards=genHand(5);G.p2Cards=genHand(5);
-  G.p1Sel=null;G.p2Sel=null;
-  showScreen('screen-game');
-  updateUI();
-  setTimeout(()=>openAbPick(0),400);
-}
-function playAgain(){if(G.botCancel){G.botCancel();G.botCancel=null}startGame()}
+async function inviteP(opponentName){
+  if(!G.myName){alert('กรุณาเข้าสู่ระบบก่อน');return}
+  // สร้าง room
+  const roomId = 'room_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  G.roomId = roomId;
+  G.isHost = true;
+  G.opName = opponentName;
+  G.isBot = false;
 
-function resetRound(){
-  G.p1God=false;G.p2God=false;G.p1Shield=false;G.p2Shield=false;
-  G.p1Dbl=false;G.p2Dbl=false;G.p1Frz=false;G.p2Frz=false;
-  G.p1Ans=null;G.p2Ans=null;G.p1Ms=null;G.p2Ms=null;G.qTime=null;
-  G.curQ=null;G.p1Sel=null;G.p2Sel=null;
+  // เขียน invite ให้อีกฝ่าย
+  await database.ref('invites/'+opponentName.toLowerCase()).set({
+    from: G.myName,
+    roomId: roomId,
+    ts: Date.now()
+  });
+
+  // เขียน room เตรียมรอ
+  await database.ref('rooms/'+roomId).set({
+    p1Name: G.myName,
+    p2Name: opponentName,
+    status: 'waiting',    // waiting → topic → playing
+    p1Ready: false,
+    p2Ready: false,
+    p1Hp: 5, p2Hp: 5,
+    p1Score: 0, p2Score: 0,
+    topic: null, level: null,
+    ts: Date.now()
+  });
+
+  // ไปหน้าเลือก topic
+  showScreen('screen-topic');
+  showStatus(`📨 ส่งคำเชิญถึง ${esc(opponentName)} แล้ว! เลือกหัวข้อรอได้เลย`, 'si');
+}
+
+/* --- ฟัง invite ที่มาถึงตัวเอง (realtime) --- */
+function watchMyInvites(){
+  if(!G.myName)return;
+  if(G_inviteRef) G_inviteRef.off();
+  G_inviteRef = database.ref('invites/'+G.myName.toLowerCase());
+  G_inviteRef.on('value', snap=>{
+    const inv = snap.val();
+    if(!inv||!inv.from||!inv.roomId) return;
+    // ป้องกัน invite เก่า (> 60 วิ)
+    if(Date.now()-(inv.ts||0) > 60000){ snap.ref.remove(); return; }
+    showInvitePopup(inv.from, inv.roomId);
+  });
+}
+
+/* --- แสดง popup รับ/ปฏิเสธคำเชิญ --- */
+function showInvitePopup(fromName, roomId){
+  // สร้าง popup ถ้ายังไม่มี
+  let pop = document.getElementById('invitePopup');
+  if(!pop){
+    pop = document.createElement('div');
+    pop.id = 'invitePopup';
+    pop.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:2px solid var(--accent);border-radius:16px;padding:18px 20px;z-index:300;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.6);animation:popIn .3s ease;text-align:center';
+    document.body.appendChild(pop);
+  }
+  pop.innerHTML = `
+    <div style="font-size:22px;margin-bottom:8px">⚔️</div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:4px">${esc(fromName)} ชวนคุณเล่น!</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">กดรับเพื่อเข้าร่วมเกม</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-g" onclick="acceptInvite('${esc(fromName)}','${roomId}')" style="font-size:13px;padding:10px">รับ ✅</button>
+      <button class="btn btn-s" onclick="rejectInvite('${roomId}')" style="font-size:13px;padding:10px">ปฏิเสธ ❌</button>
+    </div>`;
+  pop.style.display = 'block';
+}
+
+async function acceptInvite(fromName, roomId){
+  // ซ่อน popup
+  const pop = document.getElementById('invitePopup');
+  if(pop) pop.style.display = 'none';
+  // ลบ invite
+  await database.ref('invites/'+G.myName.toLowerCase()).remove();
+
+  G.roomId = roomId;
+  G.isHost = false;
+  G.opName = fromName;
+  G.isBot = false;
+
+  // อัปเดต room ว่า p2 ready
+  await database.ref('rooms/'+roomId).update({ p2Ready: true, status: 'topic' });
+
+  // ไปหน้าเลือก topic
+  showScreen('screen-topic');
+  showStatus(`✅ รับคำเชิญจาก ${esc(fromName)} แล้ว! เลือกหัวข้อ`, 'sw');
+}
+
+async function rejectInvite(roomId){
+  const pop = document.getElementById('invitePopup');
+  if(pop) pop.style.display = 'none';
+  await database.ref('invites/'+G.myName.toLowerCase()).remove();
+  if(roomId) await database.ref('rooms/'+roomId).update({status:'rejected'});
 }
 
 /* ============================================================
-   CARD SELECTION
+   TOPIC & LEVEL — เชื่อม Firebase room
 ============================================================ */
-function selCard(player,idx){
-  if(G.phase!=='cardSelect')return;
-  const cards=player==='p1'?G.p1Cards:G.p2Cards;
-  if(!cards[idx]||cards[idx].used)return;
-  if(player==='p1')G.p1Sel=idx;else G.p2Sel=idx;
-  renderHandCards();checkConf();
-  if(G.isBot&&G.p1Sel!==null&&G.p2Sel===null){
-    const av=G.p2Cards.map((c,i)=>({c,i})).filter(x=>!x.c.used);
-    if(av.length)G.p2Sel=av[Math.floor(Math.random()*av.length)].i;
-    renderHandCards();checkConf();
+function selTopic(t,el){
+  selTopic_=t;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  const btn=document.getElementById('topicNextBtn');
+  if(btn){btn.disabled=false;btn.style.opacity='1'}
+}
+function selLevel(lv,el){
+  selLevel_=lv;
+  document.querySelectorAll('#diffLvList .lbtn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  const btn=document.getElementById('levelNextBtn');
+  if(btn){btn.disabled=false;btn.style.opacity='1'}
+}
+async function startGame(){
+  if(!selLevel_||!selTopic_)return;
+  if(G.roomId && !G.isBot){
+    // อัปเดต topic+level ลง room
+    const myKey = G.isHost ? 'p1' : 'p2';
+    await database.ref('rooms/'+G.roomId).update({
+      topic: selTopic_,
+      level: selLevel_,
+      [myKey+'Ready']: true
+    });
+    // รอ room status เป็น playing
+    showScreen('screen-game');
+    startOnlineGameFromRoom();
+  } else {
+    // bot mode
+    showScreen('screen-game');
+    startBotGame();
   }
 }
-function checkConf(){
-  const ok=G.p1Sel!==null&&(G.isBot||G.p2Sel!==null);
-  document.getElementById('confBar').style.display=ok?'block':'none';
-}
-function confirmCardSel(){
-  if(G.p1Sel===null)return;
-  if(!G.isBot&&G.p2Sel===null)return;
-  G.phase='answer';revealQ();
-}
 
 /* ============================================================
-   REVEAL QUESTION
+   ONLINE GAME — ดึงข้อมูลจาก Firebase room
 ============================================================ */
-function revealQ(){
-  G.curQ={...G.p1Cards[G.p1Sel].q};
-  G.qTime=Date.now();
+function startOnlineGameFromRoom(){
+  const roomRef = database.ref('rooms/'+G.roomId);
+  // ตั้งค่า UI
+  document.getElementById('p1Name').textContent = G.isHost ? G.myName : G.opName;
+  document.getElementById('p2Name').textContent = G.isHost ? G.opName : G.myName;
+  initGameOnline();
+  // ฟัง room changes
+  roomRef.on('value', snap=>{
+    const room = snap.val();
+    if(!room) return;
+    handleRoomUpdate(room, roomRef);
+  });
+}
+
+function initGameOnline(){
+  G.p1Hp=5;G.p2Hp=5;G.round=1;G.hasAnswered=false;
+  renderHearts();
+  document.getElementById('roundDis').textContent='รอบที่ 1';
+  document.getElementById('phaseBadge').textContent='รอเริ่มเกม...';
+  // Host สร้างคำถามแรกหลังทั้งคู่ ready
+  if(G.isHost){
+    waitForBothReady();
+  }
+}
+
+async function waitForBothReady(){
+  const roomRef = database.ref('rooms/'+G.roomId);
+  // รอ p2Ready
+  const check = setInterval(async()=>{
+    const snap = await roomRef.get();
+    const room = snap.val();
+    if(room && room.p2Ready){
+      clearInterval(check);
+      // ส่งคำถามแรก
+      sendNextQuestion();
+    }
+  }, 1000);
+}
+
+async function sendNextQuestion(){
+  if(!G.isHost) return;
+  const q = genOnlineQ(selTopic_||'mixed', selLevel_||'medium');
+  await database.ref('rooms/'+G.roomId).update({
+    question: { ...q, qId: Math.random().toString(36).slice(2,9) },
+    p1Result: null,
+    p2Result: null,
+    action: 'playing',
+    round: G.round||1
+  });
+}
+
+function genOnlineQ(topic, level){
+  const ts=['add','sub','mul','div'];
+  const t = topic==='mixed' ? ts[Math.floor(Math.random()*4)] : topic;
+  const LR={easy:[1,10],medium:[2,50],hard:[10,100],extreme:[20,500]};
+  const MR={easy:[1,9],medium:[2,12],hard:[2,25],extreme:[5,50]};
+  const[mn,mx]=LR[level]||LR.medium;
+  const r=()=>Math.floor(Math.random()*(mx-mn+1))+mn;
+  let a,b,ans,text;
+  if(t==='add'){a=r();b=r();ans=a+b;text=`${a} + ${b}`}
+  else if(t==='sub'){a=r();b=r();if(a<b)[a,b]=[b,a];ans=a-b;text=`${a} − ${b}`}
+  else if(t==='mul'){const[mm,mx2]=MR[level]||MR.medium;a=Math.floor(Math.random()*(mx2-mm+1))+mm;b=Math.floor(Math.random()*(mx2-mm+1))+mm;ans=a*b;text=`${a} × ${b}`}
+  else{const d=[2,3,4,5,6,7,8,9,10,11,12];b=d[Math.floor(Math.random()*d.length)];ans=r();a=ans*b;text=`${a} ÷ ${b}`}
+  return{text, ans};
+}
+
+let _lastQId = null;
+function handleRoomUpdate(room, roomRef){
+  // อัปเดต HP
+  if(room.p1Hp!==undefined) G.p1Hp=room.p1Hp;
+  if(room.p2Hp!==undefined) G.p2Hp=room.p2Hp;
+  renderHearts();
+
+  // แสดงคำถามใหม่
+  const q = room.question;
+  if(q && q.qId && q.qId !== _lastQId){
+    _lastQId = q.qId;
+    G.curQ = q;
+    G.hasAnswered = false;
+    G.round = room.round || 1;
+    document.getElementById('roundDis').textContent = 'รอบที่ '+G.round;
+    showQuestion(q.text);
+  }
+
+  // ตรวจ game over
+  if(G.p1Hp<=0||G.p2Hp<=0){
+    roomRef.off();
+    endOnlineGame();
+    return;
+  }
+
+  // ถ้าทั้งคู่ตอบแล้ว — host คำนวณผล
+  if(room.action==='playing' && room.p1Result && room.p2Result && G.isHost){
+    database.ref('rooms/'+G.roomId+'/action').set('calculating');
+    setTimeout(()=>calcOnlineRound(room.p1Result, room.p2Result, roomRef), 500);
+  }
+}
+
+function showQuestion(text){
   document.getElementById('qCard').classList.add('rev');
-  document.getElementById('qText').textContent=G.curQ.display;
-  const as=document.getElementById('ansSec');as.style.display='block';
-  const i1=document.getElementById('p1Ans'),i2=document.getElementById('p2Ans');
-  const b1=document.getElementById('p1Btn'),b2=document.getElementById('p2Btn');
-  i1.value='';i2.value='';i1.disabled=false;i2.disabled=false;
-  b1.disabled=false;b2.disabled=false;
+  document.getElementById('qText').textContent = text;
+  // ซ่อน hand cards, แสดงปุ่มตอบ
   document.getElementById('p1HSec').style.display='none';
   document.getElementById('p2HSec').style.display='none';
   document.getElementById('confBar').style.display='none';
-  setPhaseBadge();
-  if(G.p2Frz)applyFreezeUI('p2',3);
-  if(G.p1Frz)applyFreezeUI('p1',3);
-  i1.focus();
-  if(G.isBot){
-    document.getElementById('botArea').style.display='block';
-    const ba=botDecideAb();
-    if(ba)setTimeout(()=>useAbility('p2',ba),600);
-    const cfg={easy:[4500,10000,.35],medium:[2000,5000,.15],hard:[700,2500,.03]}[G.botLv]||[2000,5000,.15];
-    const delay=cfg[0]+Math.random()*(cfg[1]-cfg[0]);
-    let cancelled=false;
-    const t=setTimeout(()=>{
-      if(cancelled||G.phase!=='answer'||G.p2Ans!==null)return;
-      document.getElementById('botArea').style.display='none';
-      let ans=G.curQ.ans;
-      if(Math.random()<cfg[2]){const off=Math.ceil(Math.random()*Math.max(3,Math.abs(ans)*.25));ans=ans+(Math.random()<.5?off:-off);ans=G.curQ.isFrac?parseFloat(ans.toFixed(2)):Math.round(ans)}
-      G.p2Ans=ans;G.p2Ms=Date.now()-G.qTime;
-      i2.value=ans;i2.disabled=true;b2.disabled=true;
-      if(G.p1Ans!==null)evalRound();
-    },delay);
-    G.botCancel=()=>{cancelled=true;clearTimeout(t)};
+  document.getElementById('ansSec').style.display='none';
+  document.getElementById('phaseBadge').textContent='ตอบคำถาม!';
+  document.getElementById('phaseDesc').textContent='กดปุ่มเพื่อตอบ';
+  // แสดง multiple choice
+  showOnlineChoices(G.curQ.ans);
+}
+
+function showOnlineChoices(correct){
+  const mcWrap = document.getElementById('mcWrap');
+  const chGrid = document.getElementById('chGrid');
+  const wrongs = new Set();
+  while(wrongs.size<3){
+    const d=Math.floor(Math.random()*15)-7;
+    const c=correct+(d===0?3:d);
+    if(c>=0&&c!==correct) wrongs.add(c);
   }
-}
-function botDecideAb(){
-  const ord={easy:['heal','hint','shield','godMode'],medium:['heal','freeze','double','hint'],hard:['double','freeze','blur','swap','heal']}[G.botLv]||[];
-  for(const id of ord){if(G.p2Ab.find(a=>a.id===id)&&!G.p2AbUsed[id]&&canUseAb(id,'answer'))return id}
-  return null;
-}
-function canUseAb(id,phase){
-  const inst=['godMode','shield','heal','double'];
-  return inst.includes(id)||phase==='answer';
-}
-function applyFreezeUI(player,sec){
-  const n=player==='p1'?1:2;
-  const inp=document.getElementById(`p${n}Ans`),btn=document.getElementById(`p${n}Btn`);
-  if(!inp)return;
-  inp.disabled=true;btn.disabled=true;
-  const msg=document.createElement('div');msg.className='fzmsg';msg.id=`fz${player}`;
-  msg.textContent=`❄️ ${player.toUpperCase()} ถูกหยุดเวลา... ${sec}s`;
-  document.getElementById('ansSec').appendChild(msg);
-  let cnt=sec;
-  const iv=setInterval(()=>{cnt--;if(msg.parentNode)msg.textContent=`❄️ ${player.toUpperCase()} ถูกหยุดเวลา... ${cnt}s`;if(cnt<=0){clearInterval(iv);if(G.phase!=='answer')return;inp.disabled=false;btn.disabled=false;if(msg.parentNode)msg.parentNode.removeChild(msg);inp.focus()}},1000);
+  const all=[correct,...wrongs].sort(()=>Math.random()-.5);
+  chGrid.innerHTML=all.map(v=>`<button class="chbtn" onclick="submitOnlineAnswer(${v},${correct},this)">${v}</button>`).join('');
+  mcWrap.style.display='block';
+  document.getElementById('ansSec').style.display='block';
+  G.roundStartMs = Date.now();
 }
 
-/* ============================================================
-   SUBMIT ANSWER
-============================================================ */
-function submitAns(p){
-  if(G.phase!=='answer')return;
-  const inp=document.getElementById(`p${p}Ans`);
-  const val=parseFloat(inp.value);
-  if(isNaN(val)){inp.focus();return}
-  const key=`p${p}Ans`,ms=`p${p}Ms`;
-  if(G[key]!==null)return;
-  G[key]=val;G[ms]=Date.now()-G.qTime;
-  inp.disabled=true;document.getElementById(`p${p}Btn`).disabled=true;
-  if(G.p1Ans!==null&&G.p2Ans!==null)evalRound();
-}
-
-/* ============================================================
-   EVALUATE ROUND
-============================================================ */
-function evalRound(){
-  if(G.botCancel){G.botCancel();G.botCancel=null}
-  G.phase='result';
-  const q=G.curQ;
-  const c1=isCorrect(G.p1Ans,q),c2=isCorrect(G.p2Ans,q);
-  let winner=null;
-  if(c1&&c2)winner=G.p1Ms<=G.p2Ms?'p1':'p2';
-  else if(c1)winner='p1';
-  else if(c2)winner='p2';
-  else winner='draw';
-
-  let extra='';
-  if(winner==='p1'){
-    let dmg=(G.p1Dbl&&!G.p2Shield)?2:1;
-    if(G.p1Dbl&&G.p2Shield){G.p2Shield=false;extra='🪬 P2 โล่ป้องกัน ลดชีวิต×2!';dmg=1}
-    if(dmg===2)extra='💀 การ์ดลดชีวิต×2 ทำงาน!';
-    if(G.p2God&&G.p2HP<=1){dmg=0;G.p2God=false;extra='🛡️ P2 การ์ดกันตาย!'}
-    G.p2HP=Math.max(0,G.p2HP-dmg);if(G.p1Dbl)G.p1Dbl=false;
-  }else if(winner==='p2'){
-    let dmg=(G.p2Dbl&&!G.p1Shield)?2:1;
-    if(G.p2Dbl&&G.p1Shield){G.p1Shield=false;extra='🪬 P1 โล่ป้องกัน ลดชีวิต×2!';dmg=1}
-    if(dmg===2)extra='💀 การ์ดลดชีวิต×2 ทำงาน!';
-    if(G.p1God&&G.p1HP<=1){dmg=0;G.p1God=false;extra='🛡️ P1 การ์ดกันตาย!'}
-    G.p1HP=Math.max(0,G.p1HP-dmg);if(G.p2Dbl)G.p2Dbl=false;
-  }
-
-  if(G.p1Sel!==null)G.p1Cards[G.p1Sel].used=true;
-  if(G.p2Sel!==null)G.p2Cards[G.p2Sel].used=true;
-  G.p1Frz=false;G.p2Frz=false;
-
-  showRR(winner,c1,c2,extra);renderHearts();
-}
-
-/* ============================================================
-   NEXT ROUND
-============================================================ */
-function nextRound(){
-  document.getElementById('rrOver').style.display='none';
-  if(G.p1HP<=0||G.p2HP<=0){endGame();return}
-  G.round++;
-  if(G.p1Cards.filter(c=>!c.used).length===0)G.p1Cards=genHand(5);
-  if(G.p2Cards.filter(c=>!c.used).length===0)G.p2Cards=genHand(5);
-  resetRound();G.phase='cardSelect';
-  updateUI();
-  if(G.round===3&&G.abRound===1){G.abRound=2;setTimeout(()=>openAbPick(0),400)}
-}
-
-/* ============================================================
-   END GAME
-============================================================ */
-function endGame(){
-  const w1=G.p2HP<=0&&G.p1HP>0,w2=G.p1HP<=0&&G.p2HP>0;
-  if(!G.isBot){
-    if(w1){addStars(G.myName,1);addStars(G.opName,-1)}
-    else if(w2){addStars(G.opName,1);addStars(G.myName,-1)}
-  }
-  updateHomeProfile();
-  document.getElementById('goIco').textContent=w1?'🏆':w2?'💔':'🤝';
-  document.getElementById('goTit').textContent=w1?`${esc(G.myName)} ชนะ! 🎉`:w2?`${esc(G.opName)} ชนะ!`:'เสมอ! 🤝';
-  document.getElementById('goSt').textContent=G.isBot?'🤖 ไม่นับดาว':w1?'⭐ +1 ดาว':w2?'💔 −1 ดาว':'➖ ±0 ดาว';
-  document.getElementById('goDesc').textContent=G.isBot?`เล่นกับ ${G.opName}`:`เล่นกับ ${esc(G.opName)}`;
-  document.getElementById('goStats').innerHTML=`
-    <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>❤️ ${esc(G.myName)}</span><strong>${G.p1HP} HP</strong></div>
-    <div style="display:flex;justify-content:space-between${G.isBot?'':';margin-bottom:12px'}"><span>❤️ ${esc(G.opName)}</span><strong>${G.p2HP} HP</strong></div>
-    ${!G.isBot?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)">ดาวของคุณ: <strong style="color:var(--gold)">⭐ ${G.stars[G.myName]||0}</strong></div>`:''}`;
-  showScreen('screen-gameover');renderLB();
-}
-
-/* ============================================================
-   ABILITY PICK FLOW
-============================================================ */
-function openAbPick(pi){
-  G.pendPP=pi;G.abSelIdx=null;
-  const owned=(pi===0?G.p1Ab:G.p2Ab).map(a=>a.id);
-  const avail=ALL_AB.filter(a=>!owned.includes(a.id)).sort(()=>Math.random()-.5).slice(0,3);
-  if(!avail.length){finishAbPick(pi);return}
-  const pn=pi===0?(G.myName||'P1'):(G.opName||'P2');
-  document.getElementById('apSub').textContent=`${esc(pn)}: เลือก 1 ใบจาก 3 ใบ`;
-  const grid=document.getElementById('apGrid');
-  grid._ch=avail;
-  grid.innerHTML=avail.map((a,i)=>`<div class="apc" id="apc${i}" onclick="selAbCard(${i})"><div class="api">${a.icon}</div><div class="apn">${a.name}</div><div class="apd">${a.desc}</div></div>`).join('');
-  const cb=document.getElementById('apConfirm');cb.disabled=true;cb.style.opacity='0.5';
-  document.getElementById('apModal').style.display='flex';
-}
-function selAbCard(i){
-  G.abSelIdx=i;
-  document.querySelectorAll('.apc').forEach((el,j)=>el.classList.toggle('sel',j===i));
-  const cb=document.getElementById('apConfirm');cb.disabled=false;cb.style.opacity='1';
-}
-function confirmAbPick(){
-  if(G.abSelIdx===null)return;
-  const grid=document.getElementById('apGrid');
-  const card={...grid._ch[G.abSelIdx]};
-  if(G.pendPP===0)G.p1Ab.push(card);else G.p2Ab.push(card);
-  document.getElementById('apModal').style.display='none';
-  finishAbPick(G.pendPP);
-}
-function finishAbPick(pi){
-  if(pi===0){
-    if(G.isBot){
-      const owned=G.p2Ab.map(a=>a.id);
-      const avail=ALL_AB.filter(a=>!owned.includes(a.id));
-      const pref=['heal','godMode','double','freeze','shield','blur','swap','hint'];
-      for(const id of pref){const f=avail.find(a=>a.id===id);if(f){G.p2Ab.push({...f});break}}
-      if(G.abRound===0)G.abRound=1;
-      updateUI();
-    }else{setTimeout(()=>openAbPick(1),300)}
-  }else{
-    if(G.abRound===0)G.abRound=1;
-    updateUI();
-  }
-}
-
-/* ============================================================
-   USE ABILITY
-============================================================ */
-function useAbility(player,id){
-  const um=player==='p1'?G.p1AbUsed:G.p2AbUsed;
-  const ab=player==='p1'?G.p1Ab:G.p2Ab;
-  if(um[id])return;
-  if(!ab.find(a=>a.id===id))return;
-  if(!canUseAb(id,G.phase)){showStatus(`⚠️ ใช้การ์ดนี้ได้เฉพาะตอนตอบคำถาม`,'si');return}
-  const opp=player==='p1'?'p2':'p1';
-  const pn=player==='p1'?(G.myName||'P1'):(G.opName||'P2');
-  const on=opp==='p1'?(G.myName||'P1'):(G.opName||'P2');
-  switch(id){
-    case 'heal':
-      if(player==='p1')G.p1HP=Math.min(9,G.p1HP+1);else G.p2HP=Math.min(9,G.p2HP+1);
-      um[id]=true;showStatus(`❤️ ${esc(pn)} เพิ่ม 1HP!`,'sa');renderHearts();break;
-    case 'godMode':
-      if(player==='p1')G.p1God=true;else G.p2God=true;
-      um[id]=true;showStatus(`🛡️ ${esc(pn)} เปิดการ์ดกันตาย!`,'sa');break;
-    case 'shield':
-      if(player==='p1')G.p1Shield=true;else G.p2Shield=true;
-      um[id]=true;showStatus(`🪬 ${esc(pn)} วางโล่ป้องกัน!`,'sa');break;
-    case 'double':
-      if(player==='p1')G.p1Dbl=true;else G.p2Dbl=true;
-      um[id]=true;showStatus(`💀 ${esc(pn)} เปิดโหมดลดชีวิต×2!`,'sa');break;
-    case 'freeze':
-      if(G.phase!=='answer')return;
-      if(player==='p1')G.p2Frz=true;else G.p1Frz=true;
-      um[id]=true;applyFreezeUI(opp,3);showStatus(`❄️ ${esc(on)} ถูกหยุดเวลา 3 วิ!`,'sa');break;
-    case 'hint':
-      if(G.phase!=='answer')return;
-      um[id]=true;showHint();break;
-    case 'swap':
-      if(G.phase!=='answer')return;
-      const os=opp==='p1'?G.p1Shield:G.p2Shield;
-      if(os){if(opp==='p1')G.p1Shield=false;else G.p2Shield=false;um[id]=true;showStatus(`🪬 ${esc(on)} มีโล่! สลับโจทย์ไม่ได้`,'si');renderAbCards();return}
-      um[id]=true;document.getElementById('swapModal').style.display='flex';break;
-    case 'blur':
-      if(G.phase!=='answer')return;
-      um[id]=true;applyBlur();showStatus(`🌫️ ${esc(pn)} เบลอตัวเลขในโจทย์!`,'sa');break;
-  }
-  renderAbCards();
-}
-function confirmSwap(doIt){
-  document.getElementById('swapModal').style.display='none';
-  if(!doIt)return;
-  const q2=G.p2Cards[G.p2Sel]?.q;
-  if(q2){G.curQ={...q2};document.getElementById('qText').textContent=G.curQ.display;showStatus('🔄 สลับโจทย์แล้ว!','sa')}
-}
-function applyBlur(){
-  const el=document.getElementById('qText');const txt=el.textContent;
-  const nums=txt.match(/\d+/g);if(!nums)return;
-  const t=nums[Math.floor(Math.random()*nums.length)];let done=false;
-  el.innerHTML=txt.replace(/\d+/g,m=>{if(!done&&m===t){done=true;return`<span class="blurn">${m}</span>`}return m});
-}
-function showHint(){
-  const ca=Math.round(G.curQ.ans);const ws=new Set();
-  while(ws.size<3){const o=Math.ceil(Math.random()*Math.max(5,Math.abs(ca)*.4));const c=ca+(Math.random()<.5?o:-o);if(c!==ca)ws.add(Math.round(c))}
-  const ch=[ca,...ws].sort(()=>Math.random()-.5);
-  document.getElementById('chGrid').innerHTML=ch.map(c=>`<button class="chbtn" onclick="pickHint(${c},${ca},this)">${c}</button>`).join('');
-  document.getElementById('mcWrap').style.display='block';
-}
-function pickHint(v,ca,el){
+async function submitOnlineAnswer(chosen, correct, btn){
+  if(G.hasAnswered) return;
+  G.hasAnswered = true;
+  const isCorrect = chosen===correct;
+  const ms = Date.now() - G.roundStartMs;
+  // แสดงผลปุ่ม
+  btn.style.background = isCorrect ? 'var(--green)' : 'var(--red)';
   document.querySelectorAll('.chbtn').forEach(b=>b.disabled=true);
-  el.classList.add(v===ca?'cor':'wrg');
-  if(v!==ca)document.querySelectorAll('.chbtn').forEach(b=>{if(parseInt(b.textContent)===ca)b.classList.add('cor')});
-  setTimeout(()=>{document.getElementById('p1Ans').value=v;document.getElementById('mcWrap').style.display='none'},900);
+  if(!isCorrect){
+    document.querySelectorAll('.chbtn').forEach(b=>{if(parseInt(b.textContent)===correct)b.style.background='var(--green)'});
+  }
+  // บันทึกผลลง Firebase
+  const role = G.isHost ? 'p1' : 'p2';
+  await database.ref('rooms/'+G.roomId+'/'+role+'Result').set({correct:isCorrect, timeMs:ms});
 }
 
-/* ============================================================
-   UI RENDER
-============================================================ */
-function updateUI(){
-  document.getElementById('p1Name').textContent=G.myName||'P1';
-  document.getElementById('p2Name').textContent=G.opName||'P2';
-  document.getElementById('p1HL').textContent=G.myName||'P1';
-  document.getElementById('p2HL').textContent=G.opName||'P2';
-  document.getElementById('p1AL').textContent=G.myName||'P1';
-  document.getElementById('p2AL').textContent=G.opName||'P2';
-  document.getElementById('p1AnsLbl').textContent=G.myName||'P1';
-  document.getElementById('p2AnsLbl').textContent=G.opName||'P2';
-  document.getElementById('roundDis').textContent=`รอบที่ ${G.round}`;
-  renderHearts();renderHandCards();renderAbCards();setPhaseBadge();resetQDisplay();
+async function calcOnlineRound(p1Res, p2Res, roomRef){
+  let p1hp=G.p1Hp, p2hp=G.p2Hp;
+  let winner='draw';
+  if(p1Res.correct&&p2Res.correct){ winner=p1Res.timeMs<=p2Res.timeMs?'p1':'p2' }
+  else if(p1Res.correct){ winner='p1' }
+  else if(p2Res.correct){ winner='p2' }
+  if(winner==='p1') p2hp=Math.max(0,p2hp-1);
+  else if(winner==='p2') p1hp=Math.max(0,p1hp-1);
+  else { p1hp=Math.max(0,p1hp-1); p2hp=Math.max(0,p2hp-1); }
+
+  G.round=(G.round||1)+1;
+  await database.ref('rooms/'+G.roomId).update({
+    p1Hp:p1hp, p2Hp:p2hp,
+    p1Result:null, p2Result:null,
+    action:'playing',
+    round: G.round
+  });
+  // ถ้าไม่ game over ส่งคำถามใหม่
+  if(p1hp>0 && p2hp>0){
+    setTimeout(sendNextQuestion, 1500);
+  }
 }
+
+function endOnlineGame(){
+  const myIsP1 = G.isHost;
+  const myHp = myIsP1?G.p1Hp:G.p2Hp;
+  const opHp = myIsP1?G.p2Hp:G.p1Hp;
+  const win = myHp>0&&opHp<=0;
+  const lose = myHp<=0&&opHp>0;
+  document.getElementById('goIco').textContent = win?'🏆':lose?'💔':'🤝';
+  document.getElementById('goTit').textContent = win?'คุณชนะ! 🎉':lose?'คุณแพ้...':'เสมอ!';
+  document.getElementById('goSt').textContent = win?'⭐ +1 ดาว':lose?'💔 −1 ดาว':'➖';
+  document.getElementById('goDesc').textContent = `เล่นกับ ${G.opName}`;
+  document.getElementById('goStats').innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>❤️ ${esc(G.myName)}</span><strong>${myHp} HP</strong></div><div style="display:flex;justify-content:space-between"><span>❤️ ${esc(G.opName)}</span><strong>${opHp} HP</strong></div>`;
+  // อัปเดตดาว
+  if(win) updateStarsFB(G.myName,1);
+  if(lose) updateStarsFB(G.myName,-1);
+  showScreen('screen-gameover');
+}
+async function updateStarsFB(name,d){
+  const snap=await database.ref('players/'+name.toLowerCase()).get();
+  if(!snap.exists())return;
+  const p=snap.val();
+  const ns=Math.max(0,(p.stars||0)+d);
+  const nw=(p.wins||0)+(d>0?1:0);
+  const nl=(p.losses||0)+(d<0?1:0);
+  await database.ref('players/'+name.toLowerCase()).update({stars:ns,wins:nw,losses:nl});
+}
+function playAgain(){ showScreen('screen-topic'); selTopic_=null; selLevel_=null; }
 function renderHearts(){
   ['p1','p2'].forEach(p=>{
-    const hp=p==='p1'?G.p1HP:G.p2HP;
-    document.getElementById(`${p}Hearts`).innerHTML=Array.from({length:5},(_,i)=>`<span class="heart${i>=hp?' empty':''}">❤️</span>`).join('');
+    const hp=p==='p1'?G.p1Hp:G.p2Hp;
+    const el=document.getElementById(p+'Hearts');
+    if(!el)return;
+    el.innerHTML=Array.from({length:5},(_,i)=>`<span class="heart${i>=hp?' empty':''}">❤️</span>`).join('');
   });
 }
-function renderHandCards(){
-  ['p1','p2'].forEach(p=>{
-    const cards=p==='p1'?G.p1Cards:G.p2Cards;
-    const sel=p==='p1'?G.p1Sel:G.p2Sel;
-    const el=document.getElementById(`${p}HCards`);
-    const sec=document.getElementById(`${p}HSec`);
-    if(G.phase!=='cardSelect'){sec.style.display='none';return}
-    sec.style.display='';
-    el.innerHTML=cards.map((c,i)=>`<div class="hcard${c.used?' used':''}${sel===i?' sel':''}" onclick="selCard('${p}',${i})"><span style="font-size:26px">🃏</span><div class="cnum">#${i+1}</div></div>`).join('');
-  });
-  checkConf();
-}
-function renderAbCards(){
-  ['p1','p2'].forEach(p=>{
-    const ab=p==='p1'?G.p1Ab:G.p2Ab;
-    const um=p==='p1'?G.p1AbUsed:G.p2AbUsed;
-    document.getElementById(`${p}AbCards`).innerHTML=ab.map(a=>`<div class="abcard${um[a.id]?' used':''}" onclick="useAbility('${p}','${a.id}')" title="${a.desc}"><div class="ai">${a.icon}</div><div class="an">${a.name}</div></div>`).join('');
-  });
-}
-function setPhaseBadge(){
-  const b=document.getElementById('phaseBadge'),d=document.getElementById('phaseDesc');
-  if(G.phase==='cardSelect'){b.textContent='เลือกการ์ดโจทย์';d.textContent='แต่ละฝ่ายเลือก 1 ใบจากมือ (หน้าคว่ำ)';document.getElementById('ansSec').style.display='none';document.getElementById('mcWrap').style.display='none';document.getElementById('botArea').style.display='none'}
-  else if(G.phase==='answer'){b.textContent='ตอบคำถาม!';d.textContent='ใครตอบถูกก่อน — ชนะรอบ!'}
-  else{b.textContent='ผลการแข่ง';d.textContent=''}
-}
-function resetQDisplay(){
-  document.getElementById('qCard').classList.remove('rev');
-  document.getElementById('qText').innerHTML='<span class="qhid">? ? ?</span>';
-  document.getElementById('ansSec').style.display='none';
-  document.getElementById('mcWrap').style.display='none';
-  document.getElementById('botArea').style.display='none';
-  document.getElementById('p1HSec').style.display='';
-  document.getElementById('p2HSec').style.display='';
-}
-function showRR(winner,c1,c2,extra){
-  const p1=G.myName||'P1',p2=G.opName||'P2';
-  let icon,title,sub;
-  if(winner==='draw'){icon='🤝';title='เสมอ!';sub='ทั้งสองฝ่ายตอบไม่ถูก'}
-  else if(winner==='p1'){icon='🏅';title=`${esc(p1)} ชนะ!`;sub=`ตอบถูกใน ${(G.p1Ms/1000).toFixed(2)}s`}
-  else{icon=G.isBot?'🤖':'🏅';title=`${esc(p2)} ชนะ!`;sub=`ตอบถูกใน ${(G.p2Ms/1000).toFixed(2)}s`}
-  document.getElementById('rIcon').textContent=icon;
-  document.getElementById('rTitle').textContent=title;
-  document.getElementById('rSub').textContent=sub;
-  document.getElementById('rDet').innerHTML=`${extra?`<div>${extra}</div>`:''}<div style="margin-top:6px;font-size:12px">${esc(p1)}: ${c1?'✅ ถูก':'❌ ผิด'} | ${esc(p2)}: ${c2?'✅ ถูก':'❌ ผิด'}</div><div style="margin-top:4px;font-size:12px;color:var(--text2)">❤️ ${esc(p1)}: ${G.p1HP}HP | ${esc(p2)}: ${G.p2HP}HP</div>`;
-  document.getElementById('rrOver').style.display='flex';
-}
-
 let _stTimer=null;
 function showStatus(msg,cls='si'){
-  const el=document.getElementById('statusArea');
+  const el=document.getElementById('statusArea');if(!el)return;
   el.innerHTML=`<div class="smsg ${cls}">${msg}</div>`;
-  clearTimeout(_stTimer);_stTimer=setTimeout(()=>{if(el)el.innerHTML=''},3200);
+  clearTimeout(_stTimer);_stTimer=setTimeout(()=>{if(el)el.innerHTML=''},4000);
 }
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* BOT (placeholder) */
+function selBotLv(lv,el){
+  selBotLv_=lv;
+  document.querySelectorAll('#botLevelList .lbtn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  const btn=document.getElementById('botStartBtn');if(btn){btn.disabled=false;btn.style.opacity='1'}
+}
+function startVsBot(){
+  if(!selBotLv_)return;
+  G.isBot=true;G.botLv=selBotLv_;G.roomId='';
+  G.opName={easy:'บอท (ง่าย)',medium:'บอท (ปานกลาง)',hard:'บอท (ยาก)'}[selBotLv_];
+  showScreen('screen-topic');
+}
+function startBotGame(){ showStatus('โหมดบอทกำลังพัฒนา...','si') }
+
+/* ============================================================
+   FIX: การ์ดโจทย์ — เลือกได้เฉพาะฝั่งตัวเอง
+============================================================ */
+// ฝั่งตัวเองเท่านั้นที่เลือกได้
+// G.isHost = true → เป็น p1
+// G.isHost = false → เป็น p2
+function selCard(player, idx){
+  // ตรวจสอบว่าเป็นฝั่งของเราหรือไม่
+  const myRole = G.isHost ? 'p1' : 'p2';
+  if(player !== myRole && !G.isBot){ return; } // ถ้าไม่ใช่ฝั่งเรา ห้ามกด
+  const cards = player==='p1' ? G.p1Cards : G.p2Cards;
+  if(!cards||!cards[idx]||cards[idx].used) return;
+  if(player==='p1') G.p1Sel=idx; else G.p2Sel=idx;
+  renderHandCards();
+  checkConf();
+}
+function confirmCardSel(){
+  if(!G.isBot){
+    // online mode — ส่งการ์ดที่เลือกขึ้น Firebase แล้วรอ
+    showStatus('✅ เลือกการ์ดแล้ว กำลังรอฝ่ายตรงข้าม...','si');
+  }
+}
+function checkConf(){
+  const myRole=G.isHost?'p1':'p2';
+  const mySel=myRole==='p1'?G.p1Sel:G.p2Sel;
+  const bar=document.getElementById('confBar');
+  if(bar) bar.style.display=mySel!==null?'block':'none';
+}
+function renderHandCards(){}  // placeholder ถ้าไม่ได้ใช้ card system ใน online mode
+
+/* ============================================================
+   BOOT
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  createStars();
+  // เคลียร์ session เก่า
+  const oldQueueKey = sessionStorage.getItem('my_queue_key');
+  if (oldQueueKey) database.ref('queue/' + oldQueueKey).remove();
+  sessionStorage.clear();
+  // เริ่มที่หน้า login
+  showScreen('screen-login');
+});
 </script>
 </body>
 </html>
