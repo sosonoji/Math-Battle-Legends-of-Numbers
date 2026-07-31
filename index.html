@@ -406,6 +406,142 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 @keyframes shipShake{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.15) rotate(-6deg)}60%{transform:scale(.9) rotate(5deg)}100%{transform:scale(0) rotate(30deg);opacity:0}}
 .warp-line{position:fixed;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);z-index:180;pointer-events:none;border-radius:2px}
 @keyframes warpFly{from{transform:translateX(-40vw);opacity:0}10%{opacity:1}to{transform:translateX(60vw);opacity:0}}
+
+/* ============================================================
+   GALAXY DECOR PACK — PART 2
+   Extends the space/battle theme to every remaining screen:
+   topic & level select, waiting room, live battle HUD, round
+   result, game-over and all modals. CSS-only — no ids, classes,
+   handlers, or game state touched.
+============================================================ */
+
+/* ---- background wash on every screen (topic/level/game/gameover/modals) ---- */
+.screen{
+  background:
+    radial-gradient(ellipse 70% 50% at 15% -10%,rgba(139,92,246,.14),transparent 60%),
+    radial-gradient(ellipse 60% 45% at 100% 105%,rgba(245,158,11,.10),transparent 55%);
+}
+
+/* ---- HUD panel treatment: setup screens, waiting room, modals, gameover ---- */
+.setup,.waitbox,.mbox,.rrbox,.goscreen{position:relative}
+.mbox,.rrbox{
+  background:linear-gradient(160deg,rgba(22,29,46,.92),rgba(13,17,30,.96));
+  border:1px solid rgba(148,163,184,.22);
+  box-shadow:0 0 0 1px rgba(245,158,11,.08),0 24px 60px rgba(0,0,0,.6),0 0 40px rgba(139,92,246,.12);
+  backdrop-filter:blur(6px);
+}
+.mbox::before,.rrbox::before{
+  content:'';position:absolute;top:0;left:14px;right:14px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),var(--purple),transparent);
+  opacity:.85;
+}
+.tbtn,.lbtn,.apc{position:relative;overflow:hidden}
+.tbtn::after,.lbtn::after{content:'';position:absolute;top:-40%;right:-30%;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.18),transparent 70%);pointer-events:none;transition:opacity .25s;opacity:.6}
+.tbtn.sel::after,.lbtn.sel::after,.tbtn:hover::after,.lbtn:hover::after{opacity:1;background:radial-gradient(circle,rgba(245,158,11,.32),transparent 70%)}
+.stitle{
+  background:linear-gradient(135deg,#fde68a,#f59e0b 45%,#8b5cf6);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-family:'Orbitron','Kanit',sans-serif;letter-spacing:1px;
+  filter:drop-shadow(0 2px 10px rgba(245,158,11,.25));
+}
+
+/* ---- waiting room: orbiting probe instead of plain spinner ---- */
+.waitbox{position:relative}
+.spinner{position:relative;border-color:rgba(148,163,184,.18);border-top-color:var(--accent);box-shadow:0 0 24px rgba(245,158,11,.25)}
+.spinner::after{
+  content:'🛰️';position:absolute;top:50%;left:50%;font-size:16px;
+  transform-origin:0 0;animation:probeOrbit 2.4s linear infinite;
+}
+@keyframes probeOrbit{
+  0%{transform:translate(-50%,-50%) rotate(0deg) translateX(34px) rotate(0deg)}
+  100%{transform:translate(-50%,-50%) rotate(360deg) translateX(34px) rotate(-360deg)}
+}
+
+/* ---- battle HUD: header, badges, question stage, footer bars ---- */
+.ghdr{
+  background:linear-gradient(180deg,rgba(20,26,42,.95),rgba(13,17,28,.9));
+  border-bottom:1px solid rgba(148,163,184,.15);
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 6px 18px rgba(0,0,0,.35);
+  position:relative;
+}
+.ghdr::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,.5),rgba(245,158,11,.5),transparent)}
+.vstag{
+  background:linear-gradient(135deg,var(--red),#b91c1c);
+  box-shadow:0 0 0 3px rgba(239,68,68,.15),0 0 16px rgba(239,68,68,.5);
+  animation:vsPulse 1.8s ease-in-out infinite;
+}
+@keyframes vsPulse{0%,100%{box-shadow:0 0 0 3px rgba(239,68,68,.15),0 0 16px rgba(239,68,68,.5)}50%{box-shadow:0 0 0 5px rgba(239,68,68,.22),0 0 24px rgba(239,68,68,.75)}}
+.bsec{position:relative}
+.bsec::before{
+  content:'';position:absolute;top:8%;left:50%;transform:translateX(-50%);width:min(420px,90%);height:70%;
+  background:radial-gradient(ellipse at center,rgba(139,92,246,.10),transparent 70%);
+  pointer-events:none;
+}
+.rbadge{
+  box-shadow:0 0 14px rgba(245,158,11,.5);
+  animation:badgeGlow 2.2s ease-in-out infinite;
+}
+@keyframes badgeGlow{0%,100%{box-shadow:0 0 10px rgba(245,158,11,.4)}50%{box-shadow:0 0 20px rgba(245,158,11,.7)}}
+.qcard{position:relative}
+.qcard::after{
+  content:'';position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);width:78%;height:16px;
+  background:radial-gradient(ellipse at center,rgba(245,158,11,.35),transparent 75%);
+  filter:blur(2px);pointer-events:none;
+}
+.hsec,.csec,.confbar{
+  background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(13,17,28,.95));
+  border-top-color:rgba(148,163,184,.15);
+}
+.hp1{background:linear-gradient(180deg,rgba(20,26,42,.92),rgba(13,17,28,.95))}
+
+/* ---- list rows (friends / leaderboard) subtle depth ---- */
+.fi,.lbi{transition:transform .2s,border-color .2s;position:relative}
+.fi:hover,.lbi:hover{transform:translateX(2px);border-color:rgba(245,158,11,.35)}
+.lbr.gold{text-shadow:0 0 10px rgba(251,191,36,.7)}
+
+/* ---- gameover screen accent glow ---- */
+#screen-gameover .goscreen{position:relative}
+.goico{filter:drop-shadow(0 0 16px rgba(245,158,11,.4))}
+
+/* ============================================================
+   GALAXY DECOR PACK — PART 3
+   Local "deep space" backdrop (drifting planets + asteroids)
+   for topic / level / battle / game-over screens, so the space
+   theme is guaranteed visible even where content panels fill
+   most of the viewport. Panels also get a touch of translucency
+   so the starfield reads through them. Visuals only.
+============================================================ */
+#screen-topic,#screen-level,#screen-game,#screen-gameover{position:relative;overflow:hidden}
+.space-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.sb-planet{position:absolute;border-radius:50%;opacity:.5}
+.sb-planet.sb-p1{
+  width:110px;height:110px;top:-30px;right:-30px;
+  background:radial-gradient(circle at 35% 35%,#c4b5fd,#8b5cf6 55%,#4c1d95 100%);
+  box-shadow:0 0 40px rgba(139,92,246,.35);
+  animation:sbDrift1 16s ease-in-out infinite;
+}
+.sb-planet.sb-p1::after{
+  content:'';position:absolute;inset:-14px -26px;border:3px solid rgba(196,181,253,.35);
+  border-radius:50%;transform:rotate(-20deg);
+}
+.sb-planet.sb-p2{
+  width:60px;height:60px;bottom:6%;left:-24px;
+  background:radial-gradient(circle at 35% 35%,#fca5a5,#ef4444 55%,#7f1d1d 100%);
+  box-shadow:0 0 26px rgba(239,68,68,.3);
+  animation:sbDrift2 20s ease-in-out infinite;
+}
+@keyframes sbDrift1{0%,100%{transform:translate(0,0)}50%{transform:translate(-14px,16px)}}
+@keyframes sbDrift2{0%,100%{transform:translate(0,0)}50%{transform:translate(10px,-14px)}}
+.sb-ast{position:absolute;width:5px;height:5px;border-radius:40%;background:#94a3b8;opacity:.6;box-shadow:0 0 6px rgba(148,163,184,.5)}
+.sb-ast.a1{top:22%;animation:astFly 13s linear infinite}
+.sb-ast.a2{top:68%;width:3px;height:3px;animation:astFly 19s linear infinite 3s}
+@keyframes astFly{0%{transform:translateX(-10vw) rotate(0deg);opacity:0}8%{opacity:.6}92%{opacity:.6}100%{transform:translateX(110vw) rotate(300deg);opacity:0}}
+
+/* ---- let the starfield read through the HUD glass panels ---- */
+.ghdr{background:linear-gradient(180deg,rgba(20,26,42,.86),rgba(13,17,28,.8));backdrop-filter:blur(4px)}
+.hsec,.csec,.confbar,.hp1{background:linear-gradient(180deg,rgba(17,24,39,.82),rgba(13,17,28,.86));backdrop-filter:blur(4px)}
+.tgrid .tbtn,.llist .lbtn{background:rgba(22,29,46,.88);backdrop-filter:blur(3px)}
+.gostats{background:rgba(22,29,46,.85);backdrop-filter:blur(3px)}
 </style>
 </head>
 <body>
@@ -566,6 +702,12 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== TOPIC ===== -->
 <div class="screen" id="screen-topic">
+  <div class="space-bg">
+    <div class="sb-planet sb-p1"></div>
+    <div class="sb-planet sb-p2"></div>
+    <div class="sb-ast a1"></div>
+    <div class="sb-ast a2"></div>
+  </div>
   <div class="setup">
     <button class="back-btn" onclick="cancelSetup()">← กลับ</button>
     <div class="stitle">📚 เลือกหัวข้อ</div>
@@ -583,6 +725,12 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== LEVEL (bot mode only) ===== -->
 <div class="screen" id="screen-level">
+  <div class="space-bg">
+    <div class="sb-planet sb-p1"></div>
+    <div class="sb-planet sb-p2"></div>
+    <div class="sb-ast a1"></div>
+    <div class="sb-ast a2"></div>
+  </div>
   <div class="setup">
     <button class="back-btn" onclick="showScreen('screen-topic')">← กลับ</button>
     <div class="stitle">⚡ เลือกระดับความยาก</div>
@@ -643,6 +791,10 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== GAME ===== -->
 <div class="screen" id="screen-game">
+  <div class="space-bg">
+    <div class="sb-planet sb-p1"></div>
+    <div class="sb-ast a1"></div>
+  </div>
   <div class="glayout">
     <div class="ghdr">
       <div class="phdr">
@@ -741,6 +893,12 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== GAME OVER ===== -->
 <div class="screen" id="screen-gameover">
+  <div class="space-bg">
+    <div class="sb-planet sb-p1"></div>
+    <div class="sb-planet sb-p2"></div>
+    <div class="sb-ast a1"></div>
+    <div class="sb-ast a2"></div>
+  </div>
   <div class="goscreen">
     <div class="goico" id="goIco">🏆</div>
     <div class="gotit" id="goTit">ชนะ!</div>
