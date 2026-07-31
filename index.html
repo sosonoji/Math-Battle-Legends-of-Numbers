@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔️ MathBattle 1v1</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Kanit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<title>🚀⚔️ MathBattle 1v1</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Kanit:wght@300;400;500;700;900&family=Orbitron:wght@500;700;800;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -28,7 +28,7 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .login-logo{text-align:center;margin-bottom:28px}
 .login-logo h1{font-size:clamp(28px,6vw,48px);background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:6px}
 .login-logo p{color:var(--text2);font-size:12px;letter-spacing:2px;text-transform:uppercase}
-.login-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:24px;box-shadow:var(--shadow)}
+.login-card{background:rgba(20,26,42,.42);border:1px solid var(--border);border-radius:var(--r16);padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2)}
 .login-tabs{display:flex;gap:6px;margin-bottom:20px}
 .login-tab{flex:1;padding:9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);cursor:pointer;text-align:center;font-size:13px;color:var(--text2);font-family:'Prompt',sans-serif;transition:all .2s}
 .login-tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
@@ -302,6 +302,110 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 /* Confetti */
 .fx-confetti{position:fixed;top:-20px;z-index:150;pointer-events:none;will-change:transform,opacity;animation:confettiFall linear forwards}
 @keyframes confettiFall{to{transform:translateY(110vh) rotate(600deg);opacity:.15}}
+
+/* ============================================================
+   GALAXY DECOR PACK — solar-system bg, curved 3D logo,
+   orbiting button accents, 3D depth, ship-explosion FX
+   (visuals only — no game logic touched)
+============================================================ */
+
+/* ---- deeper galaxy gradients behind login/home/waiting ---- */
+#screen-login,#screen-home,#screen-waiting{
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -10%,rgba(139,92,246,.22),transparent 60%),
+    radial-gradient(ellipse 90% 70% at 100% 110%,rgba(245,158,11,.14),transparent 55%),
+    radial-gradient(ellipse 80% 60% at 0% 100%,rgba(59,130,246,.14),transparent 55%),
+    linear-gradient(135deg,#05070f,#0a0e1a 40%,#0d1224 70%,#070a14);
+  position:relative;overflow:hidden;
+}
+
+/* ---- Solar system decorative background (login & home only) ---- */
+.solar-bg{position:absolute;inset:0;z-index:0;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.solar-bg .sun{
+  position:absolute;width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fff6d6,#fbbf24 35%,#f59e0b 60%,#d97706 100%);
+  box-shadow:0 0 40px 14px rgba(251,191,36,.55),0 0 90px 40px rgba(245,158,11,.25);
+  animation:sunPulse 4s ease-in-out infinite;
+}
+@keyframes sunPulse{0%,100%{box-shadow:0 0 40px 14px rgba(251,191,36,.55),0 0 90px 40px rgba(245,158,11,.25)}50%{box-shadow:0 0 52px 20px rgba(251,191,36,.7),0 0 110px 50px rgba(245,158,11,.35)}}
+.solar-bg .orbit{position:absolute;border:1px dashed rgba(148,163,184,.18);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
+.solar-bg .orbit.o1{width:170px;height:170px;animation:spinOrbit 14s linear infinite}
+.solar-bg .orbit.o2{width:260px;height:260px;animation:spinOrbit 22s linear infinite reverse}
+.solar-bg .orbit.o3{width:360px;height:360px;animation:spinOrbit 34s linear infinite}
+.solar-bg .orbit.o4{width:470px;height:470px;animation:spinOrbit 50s linear infinite reverse}
+@keyframes spinOrbit{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.solar-bg .planet{position:absolute;top:50%;left:100%;transform:translate(-50%,-50%);border-radius:50%}
+.solar-bg .orbit.o1 .planet{width:10px;height:10px;background:radial-gradient(circle at 35% 35%,#93c5fd,#3b82f6 60%,#1d4ed8);box-shadow:0 0 10px rgba(59,130,246,.8)}
+.solar-bg .orbit.o2 .planet{width:15px;height:15px;background:radial-gradient(circle at 35% 35%,#fca5a5,#ef4444 60%,#991b1b);box-shadow:0 0 12px rgba(239,68,68,.75)}
+.solar-bg .orbit.o3 .planet{width:12px;height:12px;background:radial-gradient(circle at 35% 35%,#d8b4fe,#8b5cf6 60%,#5b21b6);box-shadow:0 0 12px rgba(139,92,246,.75)}
+.solar-bg .orbit.o3 .planet::after{content:'';position:absolute;inset:-5px -9px;border:1.5px solid rgba(216,180,254,.55);border-radius:50%;transform:rotate(-25deg)}
+.solar-bg .orbit.o4 .planet{width:9px;height:9px;background:radial-gradient(circle at 35% 35%,#a7f3d0,#10b981 60%,#065f46);box-shadow:0 0 10px rgba(16,185,129,.75)}
+.solar-bg .comet{position:absolute;width:70px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85));border-radius:2px;animation:cometFly 7s linear infinite;opacity:0}
+.solar-bg .comet.c2{animation-delay:3.4s;top:60%}
+@keyframes cometFly{0%{opacity:0;transform:translate(-120px,-90px) rotate(25deg)}5%{opacity:1}25%{opacity:0;transform:translate(340px,150px) rotate(25deg)}100%{opacity:0;transform:translate(340px,150px) rotate(25deg)}}
+
+/* ---- Curved / dimensional 3D game logo ---- */
+.logo-3d{display:block;margin:0 auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.55))}
+.logo-3d .logo-arc-shadow{fill:none}
+.logo-3d text{font-family:'Orbitron','Kanit',sans-serif;font-weight:900;letter-spacing:2px}
+.logo-3d .logo-depth{fill:#7c2d12;opacity:.9}
+.logo-3d .logo-depth2{fill:#92400e;opacity:.55}
+.logo-3d .logo-face{fill:url(#logoGrad);}
+.logo-3d .logo-shine{fill:rgba(255,255,255,.35)}
+.logo-rockets{animation:logoRocketFloat 3.4s ease-in-out infinite}
+@keyframes logoRocketFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3px) rotate(-4deg)}}
+
+/* ---- 3D depth for panels & cards ---- */
+.login-card,.menu-box{
+  box-shadow:0 2px 0 rgba(255,255,255,.04) inset,0 1px 0 rgba(255,255,255,.06) inset,0 18px 40px rgba(0,0,0,.55),0 4px 14px rgba(0,0,0,.4);
+  transform-style:preserve-3d;
+}
+.menu-box{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.035),transparent 30%),linear-gradient(135deg,var(--card),var(--card));
+}
+.login-card{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.05),transparent 30%);
+}
+.tbtn,.lbtn,.apc,.hcard,.abcard,.qcard{transform-style:preserve-3d;transition:transform .25s cubic-bezier(.2,.8,.3,1),border-color .2s,box-shadow .25s}
+.tbtn:hover,.lbtn:hover{transform:translateY(-3px) perspective(600px) rotateX(4deg)}
+.qcard{box-shadow:0 14px 30px rgba(0,0,0,.5),0 2px 0 rgba(255,255,255,.05) inset}
+.hcard:hover{transform:translateY(-8px) perspective(500px) rotateX(6deg)}
+.abcard:hover{transform:translateY(-6px) perspective(500px) rotateX(6deg)}
+
+/* ---- Orbiting star/ship accent on primary buttons ---- */
+.btn-p,.btn-g,.btn-pu,.btn-b{position:relative;overflow:visible;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.btn-p::after,.btn-g::after,.btn-pu::after,.btn-b::after{
+  content:'✦';position:absolute;top:50%;left:50%;width:6px;height:6px;
+  font-size:9px;line-height:1;color:rgba(255,255,255,.95);
+  text-shadow:0 0 6px currentColor;pointer-events:none;
+  animation:btnOrbit 3.6s linear infinite;transform-origin:0 0;opacity:.9;
+}
+@keyframes btnOrbit{
+  0%{transform:translate(-50%,-50%) rotate(0deg) translateX(58px) rotate(0deg) scale(.7);opacity:0}
+  8%{opacity:1}
+  50%{transform:translate(-50%,-50%) rotate(180deg) translateX(58px) rotate(-180deg) scale(1)}
+  92%{opacity:1}
+  100%{transform:translate(-50%,-50%) rotate(360deg) translateX(58px) rotate(-360deg) scale(.7);opacity:0}
+}
+.smallbtn.btn-p::after,.smallbtn.btn-g::after,.smallbtn.btn-pu::after,.smallbtn.btn-b::after{animation-name:btnOrbitSm}
+@keyframes btnOrbitSm{
+  0%{transform:translate(-50%,-50%) rotate(0deg) translateX(26px) rotate(0deg) scale(.6);opacity:0}
+  8%{opacity:1}
+  50%{transform:translate(-50%,-50%) rotate(180deg) translateX(26px) rotate(-180deg) scale(.9)}
+  92%{opacity:1}
+  100%{transform:translate(-50%,-50%) rotate(360deg) translateX(26px) rotate(-360deg) scale(.6);opacity:0}
+}
+
+/* ---- Ship explosion / hyperspace overlay (game over) ---- */
+.ship-fx{position:fixed;inset:0;z-index:250;pointer-events:none;display:flex;align-items:center;justify-content:center;opacity:0}
+.ship-fx .fx-ship{font-size:54px;filter:drop-shadow(0 0 10px rgba(255,255,255,.5))}
+.ship-fx.explode{animation:shipFxIn .15s ease forwards}
+.ship-fx.explode .fx-ship{animation:shipShake .5s ease}
+.ship-fx.explode .boom{position:absolute;font-size:0;}
+@keyframes shipFxIn{to{opacity:1}}
+@keyframes shipShake{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.15) rotate(-6deg)}60%{transform:scale(.9) rotate(5deg)}100%{transform:scale(0) rotate(30deg);opacity:0}}
+.warp-line{position:fixed;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);z-index:180;pointer-events:none;border-radius:2px}
+@keyframes warpFly{from{transform:translateX(-40vw);opacity:0}10%{opacity:1}to{transform:translateX(60vw);opacity:0}}
 </style>
 </head>
 <body>
@@ -309,13 +413,41 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 <div class="nebula-bg"><div class="nebula-blob n1"></div><div class="nebula-blob n2"></div><div class="nebula-blob n3"></div></div>
 <div class="stars-bg" id="starsBg"></div>
 <div class="fx-flash" id="fxFlash"></div>
+<div class="ship-fx" id="shipFx"><span class="fx-ship" id="shipFxIcon">🛸</span></div>
 
 <!-- ===== LOGIN SCREEN ===== -->
 <div class="screen active" id="screen-login">
+  <div class="solar-bg">
+    <div class="sun"></div>
+    <div class="orbit o1"><div class="planet"></div></div>
+    <div class="orbit o2"><div class="planet"></div></div>
+    <div class="orbit o3"><div class="planet"></div></div>
+    <div class="orbit o4"><div class="planet"></div></div>
+    <div class="comet c1"></div>
+    <div class="comet c2"></div>
+  </div>
   <div class="login-wrap">
     <div class="login-logo">
-      <h1>⚔️ MATH BATTLE</h1>
-      <p>สนามแข่งคณิตศาสตร์ 1v1</p>
+      <svg class="logo-3d" viewBox="0 0 400 110" width="100%" height="110" style="max-width:400px">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fde68a"/>
+            <stop offset="35%" stop-color="#f59e0b"/>
+            <stop offset="70%" stop-color="#ef4444"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+          <path id="logoArcPath" class="logo-arc-shadow" d="M 25 82 Q 200 8 375 82"/>
+        </defs>
+        <text class="logo-depth" font-size="34"><textPath href="#logoArcPath" startOffset="50%" text-anchor="middle" dy="6">MATH BATTLE</textPath></text>
+        <text class="logo-depth2" font-size="34"><textPath href="#logoArcPath" startOffset="50%" text-anchor="middle" dy="3">MATH BATTLE</textPath></text>
+        <text class="logo-face" font-size="34"><textPath href="#logoArcPath" startOffset="50%" text-anchor="middle">MATH BATTLE</textPath></text>
+        <text class="logo-shine" font-size="34"><textPath href="#logoArcPath" startOffset="50%" text-anchor="middle" dy="-1.4">MATH BATTLE</textPath></text>
+        <g class="logo-rockets">
+          <text x="14" y="70" font-size="26">🚀</text>
+          <text x="358" y="70" font-size="26">⚔️</text>
+        </g>
+      </svg>
+      <p>สนามแข่งคณิตศาสตร์ 1v1 · กาแล็กซี่แห่งตัวเลข</p>
     </div>
     <div class="login-card">
       <div id="loginErrMsg" class="login-err"></div>
@@ -358,9 +490,36 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== HOME ===== -->
 <div class="screen" id="screen-home">
+  <div class="solar-bg">
+    <div class="sun"></div>
+    <div class="orbit o1"><div class="planet"></div></div>
+    <div class="orbit o2"><div class="planet"></div></div>
+    <div class="orbit o3"><div class="planet"></div></div>
+    <div class="orbit o4"><div class="planet"></div></div>
+    <div class="comet c1"></div>
+    <div class="comet c2"></div>
+  </div>
   <div class="home-logo">
-    <h1>⚔️ MATH BATTLE</h1>
-    <p>สนามแข่งคณิตศาสตร์ 1v1</p>
+    <svg class="logo-3d" viewBox="0 0 400 110" width="100%" height="110" style="max-width:400px">
+      <defs>
+        <linearGradient id="logoGradHome" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fde68a"/>
+          <stop offset="35%" stop-color="#f59e0b"/>
+          <stop offset="70%" stop-color="#ef4444"/>
+          <stop offset="100%" stop-color="#8b5cf6"/>
+        </linearGradient>
+        <path id="logoArcPathHome" class="logo-arc-shadow" d="M 25 82 Q 200 8 375 82"/>
+      </defs>
+      <text class="logo-depth" font-size="34"><textPath href="#logoArcPathHome" startOffset="50%" text-anchor="middle" dy="6">MATH BATTLE</textPath></text>
+      <text class="logo-depth2" font-size="34"><textPath href="#logoArcPathHome" startOffset="50%" text-anchor="middle" dy="3">MATH BATTLE</textPath></text>
+      <text class="logo-face" font-size="34" fill="url(#logoGradHome)"><textPath href="#logoArcPathHome" startOffset="50%" text-anchor="middle">MATH BATTLE</textPath></text>
+      <text class="logo-shine" font-size="34"><textPath href="#logoArcPathHome" startOffset="50%" text-anchor="middle" dy="-1.4">MATH BATTLE</textPath></text>
+      <g class="logo-rockets">
+        <text x="14" y="70" font-size="26">🚀</text>
+        <text x="358" y="70" font-size="26">⚔️</text>
+      </g>
+    </svg>
+    <p>สนามแข่งคณิตศาสตร์ 1v1 · กาแล็กซี่แห่งตัวเลข</p>
   </div>
   <div class="menu-box">
     <div class="home-profile" id="homeProfile">
@@ -2129,6 +2288,55 @@ function confettiBurst(){
   }
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* ============================================================
+   GALAXY DECOR PACK — additive visual-only hooks.
+   Watches existing result icons and plays a ship-explosion FX
+   on defeat / a hyperspace warp FX on victory. Does not read,
+   set, or alter any game state, score, HP, or card logic.
+============================================================ */
+function shipExplodeFX(){
+  const el=document.getElementById('shipFx');
+  const icon=document.getElementById('shipFxIcon');
+  if(!el||!icon)return;
+  icon.textContent='🛸';
+  el.className='ship-fx explode';
+  const r=el.getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  screenFlash('rgba(239,68,68,.5)');
+  shakeScreen();
+  setTimeout(()=>burstParticles(cx,cy,'#f59e0b',22),80);
+  setTimeout(()=>burstParticles(cx,cy,'#ef4444',18),160);
+  setTimeout(()=>burstParticles(cx,cy,'#94a3b8',14),240);
+  setTimeout(()=>{el.className='ship-fx';},650);
+}
+function warpFX(){
+  const n=10;
+  for(let i=0;i<n;i++){
+    const l=document.createElement('div');
+    l.className='warp-line';
+    l.style.top=(Math.random()*100)+'vh';
+    l.style.width=(60+Math.random()*120)+'px';
+    l.style.left='0';
+    const dur=500+Math.random()*400;
+    l.style.animation=`warpFly ${dur}ms ease-out ${Math.random()*250}ms`;
+    document.body.appendChild(l);
+    setTimeout(()=>l.remove(),dur+400);
+  }
+}
+(function initGalaxyDecorHooks(){
+  const goIco=document.getElementById('goIco');
+  if(goIco&&window.MutationObserver){
+    let last='';
+    new MutationObserver(()=>{
+      const t=goIco.textContent;
+      if(t===last)return;
+      last=t;
+      if(t==='💔'||t==='🏳️')shipExplodeFX();
+      else if(t==='🏆')warpFX();
+    }).observe(goIco,{childList:true,characterData:true,subtree:true});
+  }
+})();
 </script>
 </body>
 </html>
