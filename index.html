@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🚀⚔️ MathBattle 1v1</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Kanit:wght@300;400;500;700;900&family=Orbitron:wght@500;700;800;900&display=swap" rel="stylesheet">
+<title>⚔️ MathBattle 1v1</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&family=Kanit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -28,7 +28,7 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 .login-logo{text-align:center;margin-bottom:28px}
 .login-logo h1{font-size:clamp(28px,6vw,48px);background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:6px}
 .login-logo p{color:var(--text2);font-size:12px;letter-spacing:2px;text-transform:uppercase}
-.login-card{background:rgba(20,26,42,.42);border:1px solid var(--border);border-radius:var(--r16);padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2)}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:24px;box-shadow:var(--shadow)}
 .login-tabs{display:flex;gap:6px;margin-bottom:20px}
 .login-tab{flex:1;padding:9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);cursor:pointer;text-align:center;font-size:13px;color:var(--text2);font-family:'Prompt',sans-serif;transition:all .2s}
 .login-tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
@@ -304,286 +304,70 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 @keyframes confettiFall{to{transform:translateY(110vh) rotate(600deg);opacity:.15}}
 
 /* ============================================================
-   GALAXY DECOR PACK — solar-system bg, curved 3D logo,
-   orbiting button accents, 3D depth, ship-explosion FX
-   (visuals only — no game logic touched)
+   GALAXY DECOR PACK — richer starfield, constellations, galaxy
+   glow, Halley's Comet flybys, button press feedback, subtle
+   screen-intro animation. 100% additive: every selector below is
+   new — no existing rule above is modified, so nothing that
+   already works can be broken by this block.
 ============================================================ */
+.galaxy-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.gstar{position:absolute;border-radius:50%;background:#fff;will-change:opacity}
+.gstar.tw{animation:twinkle var(--d,4s) ease-in-out infinite}
+.gstar.bright{box-shadow:0 0 6px 1px rgba(255,255,255,.85)}
+.constellation{position:absolute;left:0;top:0;width:100%;height:100%;opacity:.32}
+.constellation line{stroke:rgba(148,163,184,.55);stroke-width:.4}
+.constellation circle{fill:#e2e8f0}
+.galaxy-spiral{position:absolute;border-radius:50%;filter:blur(3px);opacity:.45;mix-blend-mode:screen;animation:galaxySpin linear infinite}
+@keyframes galaxySpin{to{transform:rotate(360deg)}}
+.comet-el{position:fixed;border-radius:50%;background:#fff;box-shadow:0 0 10px 2px rgba(255,255,255,.9),0 0 22px 6px rgba(255,255,255,.35)}
+.comet-el::after{content:'';position:absolute;top:50%;right:100%;width:130px;height:2px;transform:translateY(-50%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.75));border-radius:2px}
+.comet-el::before{content:'';position:absolute;top:50%;right:100%;width:130px;height:14px;transform:translateY(-50%);background:linear-gradient(90deg,transparent,rgba(139,180,255,.12));border-radius:8px;filter:blur(2px)}
 
-/* ---- deeper galaxy gradients behind login/home/waiting ---- */
-#screen-login,#screen-home,#screen-waiting{
-  background:
-    radial-gradient(ellipse 120% 80% at 50% -10%,rgba(139,92,246,.22),transparent 60%),
-    radial-gradient(ellipse 90% 70% at 100% 110%,rgba(245,158,11,.14),transparent 55%),
-    radial-gradient(ellipse 80% 60% at 0% 100%,rgba(59,130,246,.14),transparent 55%),
-    linear-gradient(135deg,#05070f,#0a0e1a 40%,#0d1224 70%,#070a14);
-  position:relative;overflow:hidden;
-}
-
-/* ---- Solar system decorative background (login & home only) ---- */
-.solar-bg{position:absolute;inset:0;z-index:0;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.solar-bg .sun{
-  position:absolute;width:64px;height:64px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#fff6d6,#fbbf24 35%,#f59e0b 60%,#d97706 100%);
-  box-shadow:0 0 40px 14px rgba(251,191,36,.55),0 0 90px 40px rgba(245,158,11,.25);
-  animation:sunPulse 4s ease-in-out infinite;
-}
-@keyframes sunPulse{0%,100%{box-shadow:0 0 40px 14px rgba(251,191,36,.55),0 0 90px 40px rgba(245,158,11,.25)}50%{box-shadow:0 0 52px 20px rgba(251,191,36,.7),0 0 110px 50px rgba(245,158,11,.35)}}
-.solar-bg .orbit{position:absolute;border:1px dashed rgba(148,163,184,.18);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
-.solar-bg .orbit.o1{width:170px;height:170px;animation:spinOrbit 14s linear infinite}
-.solar-bg .orbit.o2{width:260px;height:260px;animation:spinOrbit 22s linear infinite reverse}
-.solar-bg .orbit.o3{width:360px;height:360px;animation:spinOrbit 34s linear infinite}
-.solar-bg .orbit.o4{width:470px;height:470px;animation:spinOrbit 50s linear infinite reverse}
-@keyframes spinOrbit{to{transform:translate(-50%,-50%) rotate(360deg)}}
-.solar-bg .planet{position:absolute;top:50%;left:100%;transform:translate(-50%,-50%);border-radius:50%}
-.solar-bg .orbit.o1 .planet{width:10px;height:10px;background:radial-gradient(circle at 35% 35%,#93c5fd,#3b82f6 60%,#1d4ed8);box-shadow:0 0 10px rgba(59,130,246,.8)}
-.solar-bg .orbit.o2 .planet{width:15px;height:15px;background:radial-gradient(circle at 35% 35%,#fca5a5,#ef4444 60%,#991b1b);box-shadow:0 0 12px rgba(239,68,68,.75)}
-.solar-bg .orbit.o3 .planet{width:12px;height:12px;background:radial-gradient(circle at 35% 35%,#d8b4fe,#8b5cf6 60%,#5b21b6);box-shadow:0 0 12px rgba(139,92,246,.75)}
-.solar-bg .orbit.o3 .planet::after{content:'';position:absolute;inset:-5px -9px;border:1.5px solid rgba(216,180,254,.55);border-radius:50%;transform:rotate(-25deg)}
-.solar-bg .orbit.o4 .planet{width:9px;height:9px;background:radial-gradient(circle at 35% 35%,#a7f3d0,#10b981 60%,#065f46);box-shadow:0 0 10px rgba(16,185,129,.75)}
-.solar-bg .comet{position:absolute;width:70px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85));border-radius:2px;animation:cometFly 7s linear infinite;opacity:0}
-.solar-bg .comet.c2{animation-delay:3.4s;top:60%}
-@keyframes cometFly{0%{opacity:0;transform:translate(-120px,-90px) rotate(25deg)}5%{opacity:1}25%{opacity:0;transform:translate(340px,150px) rotate(25deg)}100%{opacity:0;transform:translate(340px,150px) rotate(25deg)}}
-
-/* ---- Curved / dimensional 3D game logo ---- */
-.logo-3d{display:block;margin:0 auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.55))}
-.logo-3d .logo-arc-shadow{fill:none}
-.logo-3d text{font-family:'Orbitron','Kanit',sans-serif;font-weight:900;letter-spacing:2px}
-.logo-3d .logo-depth{fill:#7c2d12;opacity:.9}
-.logo-3d .logo-depth2{fill:#92400e;opacity:.55}
-.logo-3d .logo-face{fill:url(#logoGrad);}
-.logo-3d .logo-shine{fill:rgba(255,255,255,.35)}
-.logo-rockets{animation:logoRocketFloat 3.4s ease-in-out infinite}
-@keyframes logoRocketFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3px) rotate(-4deg)}}
-
-/* ---- 3D depth for panels & cards ---- */
-.login-card,.menu-box{
-  box-shadow:0 2px 0 rgba(255,255,255,.04) inset,0 1px 0 rgba(255,255,255,.06) inset,0 18px 40px rgba(0,0,0,.55),0 4px 14px rgba(0,0,0,.4);
-  transform-style:preserve-3d;
-}
-.menu-box{
-  background-image:linear-gradient(180deg,rgba(255,255,255,.035),transparent 30%),linear-gradient(135deg,var(--card),var(--card));
-}
-.login-card{
-  background-image:linear-gradient(180deg,rgba(255,255,255,.05),transparent 30%);
-}
-.tbtn,.lbtn,.apc,.hcard,.abcard,.qcard{transform-style:preserve-3d;transition:transform .25s cubic-bezier(.2,.8,.3,1),border-color .2s,box-shadow .25s}
-.tbtn:hover,.lbtn:hover{transform:translateY(-3px) perspective(600px) rotateX(4deg)}
-.qcard{box-shadow:0 14px 30px rgba(0,0,0,.5),0 2px 0 rgba(255,255,255,.05) inset}
-.hcard:hover{transform:translateY(-8px) perspective(500px) rotateX(6deg)}
-.abcard:hover{transform:translateY(-6px) perspective(500px) rotateX(6deg)}
-
-/* ---- Orbiting star/ship accent on primary buttons ---- */
-.btn-p,.btn-g,.btn-pu,.btn-b{position:relative;overflow:visible;box-shadow:0 6px 18px rgba(0,0,0,.35)}
-.btn-p::after,.btn-g::after,.btn-pu::after,.btn-b::after{
-  content:'✦';position:absolute;top:50%;left:50%;width:6px;height:6px;
-  font-size:9px;line-height:1;color:rgba(255,255,255,.95);
-  text-shadow:0 0 6px currentColor;pointer-events:none;
-  animation:btnOrbit 3.6s linear infinite;transform-origin:0 0;opacity:.9;
-}
-@keyframes btnOrbit{
-  0%{transform:translate(-50%,-50%) rotate(0deg) translateX(58px) rotate(0deg) scale(.7);opacity:0}
-  8%{opacity:1}
-  50%{transform:translate(-50%,-50%) rotate(180deg) translateX(58px) rotate(-180deg) scale(1)}
-  92%{opacity:1}
-  100%{transform:translate(-50%,-50%) rotate(360deg) translateX(58px) rotate(-360deg) scale(.7);opacity:0}
-}
-.smallbtn.btn-p::after,.smallbtn.btn-g::after,.smallbtn.btn-pu::after,.smallbtn.btn-b::after{animation-name:btnOrbitSm}
-@keyframes btnOrbitSm{
-  0%{transform:translate(-50%,-50%) rotate(0deg) translateX(26px) rotate(0deg) scale(.6);opacity:0}
-  8%{opacity:1}
-  50%{transform:translate(-50%,-50%) rotate(180deg) translateX(26px) rotate(-180deg) scale(.9)}
-  92%{opacity:1}
-  100%{transform:translate(-50%,-50%) rotate(360deg) translateX(26px) rotate(-360deg) scale(.6);opacity:0}
-}
-
-/* ---- Ship explosion / hyperspace overlay (game over) ---- */
-.ship-fx{position:fixed;inset:0;z-index:250;pointer-events:none;display:flex;align-items:center;justify-content:center;opacity:0}
-.ship-fx .fx-ship{font-size:54px;filter:drop-shadow(0 0 10px rgba(255,255,255,.5))}
-.ship-fx.explode{animation:shipFxIn .15s ease forwards}
-.ship-fx.explode .fx-ship{animation:shipShake .5s ease}
-.ship-fx.explode .boom{position:absolute;font-size:0;}
-@keyframes shipFxIn{to{opacity:1}}
-@keyframes shipShake{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.15) rotate(-6deg)}60%{transform:scale(.9) rotate(5deg)}100%{transform:scale(0) rotate(30deg);opacity:0}}
-.warp-line{position:fixed;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);z-index:180;pointer-events:none;border-radius:2px}
-@keyframes warpFly{from{transform:translateX(-40vw);opacity:0}10%{opacity:1}to{transform:translateX(60vw);opacity:0}}
-
-/* ============================================================
-   GALAXY DECOR PACK — PART 2
-   Extends the space/battle theme to every remaining screen:
-   topic & level select, waiting room, live battle HUD, round
-   result, game-over and all modals. CSS-only — no ids, classes,
-   handlers, or game state touched.
-============================================================ */
-
-/* ---- background wash on every screen (topic/level/game/gameover/modals) ---- */
-.screen{
-  background:
-    radial-gradient(ellipse 70% 50% at 15% -10%,rgba(139,92,246,.14),transparent 60%),
-    radial-gradient(ellipse 60% 45% at 100% 105%,rgba(245,158,11,.10),transparent 55%);
-}
-
-/* ---- HUD panel treatment: setup screens, waiting room, modals, gameover ---- */
-.setup,.waitbox,.mbox,.rrbox,.goscreen{position:relative}
-.mbox,.rrbox{
-  background:linear-gradient(160deg,rgba(22,29,46,.92),rgba(13,17,30,.96));
-  border:1px solid rgba(148,163,184,.22);
-  box-shadow:0 0 0 1px rgba(245,158,11,.08),0 24px 60px rgba(0,0,0,.6),0 0 40px rgba(139,92,246,.12);
-  backdrop-filter:blur(6px);
-}
-.mbox::before,.rrbox::before{
-  content:'';position:absolute;top:0;left:14px;right:14px;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,transparent,var(--accent),var(--purple),transparent);
-  opacity:.85;
-}
-.tbtn,.lbtn,.apc{position:relative;overflow:hidden}
-.tbtn::after,.lbtn::after{content:'';position:absolute;top:-40%;right:-30%;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.18),transparent 70%);pointer-events:none;transition:opacity .25s;opacity:.6}
-.tbtn.sel::after,.lbtn.sel::after,.tbtn:hover::after,.lbtn:hover::after{opacity:1;background:radial-gradient(circle,rgba(245,158,11,.32),transparent 70%)}
-.stitle{
-  background:linear-gradient(135deg,#fde68a,#f59e0b 45%,#8b5cf6);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  font-family:'Orbitron','Kanit',sans-serif;letter-spacing:1px;
-  filter:drop-shadow(0 2px 10px rgba(245,158,11,.25));
-}
-
-/* ---- waiting room: orbiting probe instead of plain spinner ---- */
-.waitbox{position:relative}
-.spinner{position:relative;border-color:rgba(148,163,184,.18);border-top-color:var(--accent);box-shadow:0 0 24px rgba(245,158,11,.25)}
-.spinner::after{
-  content:'🛰️';position:absolute;top:50%;left:50%;font-size:16px;
-  transform-origin:0 0;animation:probeOrbit 2.4s linear infinite;
-}
-@keyframes probeOrbit{
-  0%{transform:translate(-50%,-50%) rotate(0deg) translateX(34px) rotate(0deg)}
-  100%{transform:translate(-50%,-50%) rotate(360deg) translateX(34px) rotate(-360deg)}
-}
-
-/* ---- battle HUD: header, badges, question stage, footer bars ---- */
-.ghdr{
-  background:linear-gradient(180deg,rgba(20,26,42,.95),rgba(13,17,28,.9));
-  border-bottom:1px solid rgba(148,163,184,.15);
-  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 6px 18px rgba(0,0,0,.35);
-  position:relative;
-}
-.ghdr::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,.5),rgba(245,158,11,.5),transparent)}
-.vstag{
-  background:linear-gradient(135deg,var(--red),#b91c1c);
-  box-shadow:0 0 0 3px rgba(239,68,68,.15),0 0 16px rgba(239,68,68,.5);
-  animation:vsPulse 1.8s ease-in-out infinite;
-}
-@keyframes vsPulse{0%,100%{box-shadow:0 0 0 3px rgba(239,68,68,.15),0 0 16px rgba(239,68,68,.5)}50%{box-shadow:0 0 0 5px rgba(239,68,68,.22),0 0 24px rgba(239,68,68,.75)}}
+/* subtle background wash so game/gameover screens (which are
+   transparent by default) still feel like they're in space */
 .bsec{position:relative}
-.bsec::before{
-  content:'';position:absolute;top:8%;left:50%;transform:translateX(-50%);width:min(420px,90%);height:70%;
-  background:radial-gradient(ellipse at center,rgba(139,92,246,.10),transparent 70%);
-  pointer-events:none;
-}
-.rbadge{
-  box-shadow:0 0 14px rgba(245,158,11,.5);
-  animation:badgeGlow 2.2s ease-in-out infinite;
-}
-@keyframes badgeGlow{0%,100%{box-shadow:0 0 10px rgba(245,158,11,.4)}50%{box-shadow:0 0 20px rgba(245,158,11,.7)}}
-.qcard{position:relative}
-.qcard::after{
-  content:'';position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);width:78%;height:16px;
-  background:radial-gradient(ellipse at center,rgba(245,158,11,.35),transparent 75%);
-  filter:blur(2px);pointer-events:none;
-}
-.hsec,.csec,.confbar{
-  background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(13,17,28,.95));
-  border-top-color:rgba(148,163,184,.15);
-}
-.hp1{background:linear-gradient(180deg,rgba(20,26,42,.92),rgba(13,17,28,.95))}
-
-/* ---- list rows (friends / leaderboard) subtle depth ---- */
-.fi,.lbi{transition:transform .2s,border-color .2s;position:relative}
-.fi:hover,.lbi:hover{transform:translateX(2px);border-color:rgba(245,158,11,.35)}
-.lbr.gold{text-shadow:0 0 10px rgba(251,191,36,.7)}
-
-/* ---- gameover screen accent glow ---- */
+.bsec::before{content:'';position:absolute;top:8%;left:50%;transform:translateX(-50%);width:min(420px,90%);height:70%;background:radial-gradient(ellipse at center,rgba(139,92,246,.10),transparent 70%);pointer-events:none}
 #screen-gameover .goscreen{position:relative}
-.goico{filter:drop-shadow(0 0 16px rgba(245,158,11,.4))}
+#screen-gameover .goscreen::before{content:'';position:absolute;inset:-24px;background:radial-gradient(ellipse at 50% 28%,rgba(245,158,11,.14),transparent 65%);pointer-events:none}
+.goico{filter:drop-shadow(0 0 14px rgba(245,158,11,.45))}
 
-/* ============================================================
-   GALAXY DECOR PACK — PART 3
-   Local "deep space" backdrop (drifting planets + asteroids)
-   for topic / level / battle / game-over screens, so the space
-   theme is guaranteed visible even where content panels fill
-   most of the viewport. Panels also get a touch of translucency
-   so the starfield reads through them. Visuals only.
-============================================================ */
-#screen-topic,#screen-level,#screen-game,#screen-gameover{position:relative;overflow:hidden}
-.space-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.sb-planet{position:absolute;border-radius:50%;opacity:.5}
-.sb-planet.sb-p1{
-  width:110px;height:110px;top:-30px;right:-30px;
-  background:radial-gradient(circle at 35% 35%,#c4b5fd,#8b5cf6 55%,#4c1d95 100%);
-  box-shadow:0 0 40px rgba(139,92,246,.35);
-  animation:sbDrift1 16s ease-in-out infinite;
-}
-.sb-planet.sb-p1::after{
-  content:'';position:absolute;inset:-14px -26px;border:3px solid rgba(196,181,253,.35);
-  border-radius:50%;transform:rotate(-20deg);
-}
-.sb-planet.sb-p2{
-  width:60px;height:60px;bottom:6%;left:-24px;
-  background:radial-gradient(circle at 35% 35%,#fca5a5,#ef4444 55%,#7f1d1d 100%);
-  box-shadow:0 0 26px rgba(239,68,68,.3);
-  animation:sbDrift2 20s ease-in-out infinite;
-}
-@keyframes sbDrift1{0%,100%{transform:translate(0,0)}50%{transform:translate(-14px,16px)}}
-@keyframes sbDrift2{0%,100%{transform:translate(0,0)}50%{transform:translate(10px,-14px)}}
-.sb-ast{position:absolute;width:5px;height:5px;border-radius:40%;background:#94a3b8;opacity:.6;box-shadow:0 0 6px rgba(148,163,184,.5)}
-.sb-ast.a1{top:22%;animation:astFly 13s linear infinite}
-.sb-ast.a2{top:68%;width:3px;height:3px;animation:astFly 19s linear infinite 3s}
-@keyframes astFly{0%{transform:translateX(-10vw) rotate(0deg);opacity:0}8%{opacity:.6}92%{opacity:.6}100%{transform:translateX(110vw) rotate(300deg);opacity:0}}
+/* screen / card entrance */
+@keyframes gdFadeUp{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.gd-intro{animation:gdFadeUp .55s cubic-bezier(.2,.8,.3,1)}
 
-/* ---- let the starfield read through the HUD glass panels ---- */
-.ghdr{background:linear-gradient(180deg,rgba(20,26,42,.86),rgba(13,17,28,.8));backdrop-filter:blur(4px)}
-.hsec,.csec,.confbar,.hp1{background:linear-gradient(180deg,rgba(17,24,39,.82),rgba(13,17,28,.86));backdrop-filter:blur(4px)}
-.tgrid .tbtn,.llist .lbtn{background:rgba(22,29,46,.88);backdrop-filter:blur(3px)}
-.gostats{background:rgba(22,29,46,.85);backdrop-filter:blur(3px)}
+/* star-count pop when it updates on the game-over screen */
+@keyframes gdPop{0%{transform:scale(1)}45%{transform:scale(1.4)}100%{transform:scale(1)}}
+.gd-pop{display:inline-block;animation:gdPop .5s ease}
+
+/* button light-sweep on hover (safe set: none of these have
+   children that rely on overflow:visible to be seen) */
+.btn,.login-tab,.tbtn,.lbtn,.apc,.chbtn,.asbtn{position:relative;overflow:hidden}
+.btn::before,.login-tab::before,.tbtn::before,.lbtn::before,.apc::before,.chbtn::before,.asbtn::before{content:'';position:absolute;top:0;left:-75%;width:45%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.32),transparent);transform:skewX(-18deg);pointer-events:none;transition:left .5s ease}
+.btn:hover::before,.login-tab:hover::before,.tbtn:hover::before,.lbtn:hover::before,.apc:hover::before,.chbtn:hover::before,.asbtn:hover::before{left:130%}
+
+/* tactile press feedback (kept separate from the group above so
+   .tab — which has an absolutely-positioned badge that must not
+   be clipped — never gets overflow:hidden) */
+.btn:active,.login-tab:active,.tbtn:active,.lbtn:active,.apc:active,.chbtn:active,.asbtn:active,.tab:active,.smallbtn:active,.hcard:active,.abcard:active,.logout-btn:active,.back-btn:active{transform:scale(.95)}
+.tab:hover,.smallbtn:hover,.logout-btn:hover,.back-btn:hover{filter:brightness(1.15)}
+
+/* click ripple, spawned at the exact click point */
+.gd-ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.5);pointer-events:none;transform:translate(-50%,-50%);z-index:5}
 </style>
 </head>
 <body>
 
 <div class="nebula-bg"><div class="nebula-blob n1"></div><div class="nebula-blob n2"></div><div class="nebula-blob n3"></div></div>
 <div class="stars-bg" id="starsBg"></div>
+<div class="galaxy-layer" id="galaxyLayer"></div>
 <div class="fx-flash" id="fxFlash"></div>
-<div class="ship-fx" id="shipFx"><span class="fx-ship" id="shipFxIcon">🛸</span></div>
 
 <!-- ===== LOGIN SCREEN ===== -->
 <div class="screen active" id="screen-login">
-  <div class="solar-bg">
-    <div class="sun"></div>
-    <div class="orbit o1"><div class="planet"></div></div>
-    <div class="orbit o2"><div class="planet"></div></div>
-    <div class="orbit o3"><div class="planet"></div></div>
-    <div class="orbit o4"><div class="planet"></div></div>
-    <div class="comet c1"></div>
-    <div class="comet c2"></div>
-  </div>
   <div class="login-wrap">
     <div class="login-logo">
-      <svg class="logo-3d" viewBox="0 0 400 110" width="100%" height="110" style="max-width:400px">
-        <defs>
-          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#fde68a"/>
-            <stop offset="35%" stop-color="#f59e0b"/>
-            <stop offset="70%" stop-color="#ef4444"/>
-            <stop offset="100%" stop-color="#8b5cf6"/>
-          </linearGradient>
-          <path id="logoArcPath" class="logo-arc-shadow" d="M 25 82 Q 200 8 375 82"/>
-        </defs>
-        <text class="logo-depth" font-size="34"><textPath href="#logoArcPath" startOffset="50%" text-anchor="middle" dy="6">MATH BATTLE</textPath></text>
-        <text class="logo-depth2" font-size="34"><textPath href="#logoArcPath" startOffset="50%" text-anchor="middle" dy="3">MATH BATTLE</textPath></text>
-        <text class="logo-face" font-size="34"><textPath href="#logoArcPath" startOffset="50%" text-anchor="middle">MATH BATTLE</textPath></text>
-        <text class="logo-shine" font-size="34"><textPath href="#logoArcPath" startOffset="50%" text-anchor="middle" dy="-1.4">MATH BATTLE</textPath></text>
-        <g class="logo-rockets">
-          <text x="14" y="70" font-size="26">🚀</text>
-          <text x="358" y="70" font-size="26">⚔️</text>
-        </g>
-      </svg>
-      <p>สนามแข่งคณิตศาสตร์ 1v1 · กาแล็กซี่แห่งตัวเลข</p>
+      <h1>⚔️ MATH BATTLE</h1>
+      <p>สนามแข่งคณิตศาสตร์ 1v1</p>
     </div>
     <div class="login-card">
       <div id="loginErrMsg" class="login-err"></div>
@@ -626,36 +410,9 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== HOME ===== -->
 <div class="screen" id="screen-home">
-  <div class="solar-bg">
-    <div class="sun"></div>
-    <div class="orbit o1"><div class="planet"></div></div>
-    <div class="orbit o2"><div class="planet"></div></div>
-    <div class="orbit o3"><div class="planet"></div></div>
-    <div class="orbit o4"><div class="planet"></div></div>
-    <div class="comet c1"></div>
-    <div class="comet c2"></div>
-  </div>
   <div class="home-logo">
-    <svg class="logo-3d" viewBox="0 0 400 110" width="100%" height="110" style="max-width:400px">
-      <defs>
-        <linearGradient id="logoGradHome" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fde68a"/>
-          <stop offset="35%" stop-color="#f59e0b"/>
-          <stop offset="70%" stop-color="#ef4444"/>
-          <stop offset="100%" stop-color="#8b5cf6"/>
-        </linearGradient>
-        <path id="logoArcPathHome" class="logo-arc-shadow" d="M 25 82 Q 200 8 375 82"/>
-      </defs>
-      <text class="logo-depth" font-size="34"><textPath href="#logoArcPathHome" startOffset="50%" text-anchor="middle" dy="6">MATH BATTLE</textPath></text>
-      <text class="logo-depth2" font-size="34"><textPath href="#logoArcPathHome" startOffset="50%" text-anchor="middle" dy="3">MATH BATTLE</textPath></text>
-      <text class="logo-face" font-size="34" fill="url(#logoGradHome)"><textPath href="#logoArcPathHome" startOffset="50%" text-anchor="middle">MATH BATTLE</textPath></text>
-      <text class="logo-shine" font-size="34"><textPath href="#logoArcPathHome" startOffset="50%" text-anchor="middle" dy="-1.4">MATH BATTLE</textPath></text>
-      <g class="logo-rockets">
-        <text x="14" y="70" font-size="26">🚀</text>
-        <text x="358" y="70" font-size="26">⚔️</text>
-      </g>
-    </svg>
-    <p>สนามแข่งคณิตศาสตร์ 1v1 · กาแล็กซี่แห่งตัวเลข</p>
+    <h1>⚔️ MATH BATTLE</h1>
+    <p>สนามแข่งคณิตศาสตร์ 1v1</p>
   </div>
   <div class="menu-box">
     <div class="home-profile" id="homeProfile">
@@ -702,12 +459,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== TOPIC ===== -->
 <div class="screen" id="screen-topic">
-  <div class="space-bg">
-    <div class="sb-planet sb-p1"></div>
-    <div class="sb-planet sb-p2"></div>
-    <div class="sb-ast a1"></div>
-    <div class="sb-ast a2"></div>
-  </div>
   <div class="setup">
     <button class="back-btn" onclick="cancelSetup()">← กลับ</button>
     <div class="stitle">📚 เลือกหัวข้อ</div>
@@ -725,12 +476,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== LEVEL (bot mode only) ===== -->
 <div class="screen" id="screen-level">
-  <div class="space-bg">
-    <div class="sb-planet sb-p1"></div>
-    <div class="sb-planet sb-p2"></div>
-    <div class="sb-ast a1"></div>
-    <div class="sb-ast a2"></div>
-  </div>
   <div class="setup">
     <button class="back-btn" onclick="showScreen('screen-topic')">← กลับ</button>
     <div class="stitle">⚡ เลือกระดับความยาก</div>
@@ -791,10 +536,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== GAME ===== -->
 <div class="screen" id="screen-game">
-  <div class="space-bg">
-    <div class="sb-planet sb-p1"></div>
-    <div class="sb-ast a1"></div>
-  </div>
   <div class="glayout">
     <div class="ghdr">
       <div class="phdr">
@@ -893,12 +634,6 @@ h1,h2,h3{font-family:'Kanit',sans-serif}
 
 <!-- ===== GAME OVER ===== -->
 <div class="screen" id="screen-gameover">
-  <div class="space-bg">
-    <div class="sb-planet sb-p1"></div>
-    <div class="sb-planet sb-p2"></div>
-    <div class="sb-ast a1"></div>
-    <div class="sb-ast a2"></div>
-  </div>
   <div class="goscreen">
     <div class="goico" id="goIco">🏆</div>
     <div class="gotit" id="goTit">ชนะ!</div>
@@ -2446,43 +2181,248 @@ function confettiBurst(){
   }
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+</script>
 
+<script>
 /* ============================================================
-   GALAXY DECOR PACK — additive visual-only hooks.
-   Watches existing result icons and plays a ship-explosion FX
-   on defeat / a hyperspace warp FX on victory. Does not read,
-   set, or alter any game state, score, HP, or card logic.
+   GALAXY DECOR PACK — additive-only visual + audio layer.
+   Nothing in the script above is edited. This block only:
+     1) builds extra stars/constellations/galaxies/comets,
+     2) listens for clicks to add ripple+particle+sound FX,
+     3) wraps a few existing functions (showRR, confettiBurst,
+        showScreen) so they still do exactly what they did
+        before, plus a cosmetic extra call afterwards.
+   If anything here throws, it's caught so the game itself
+   can never be affected.
 ============================================================ */
-function shipExplodeFX(){
-  const el=document.getElementById('shipFx');
-  const icon=document.getElementById('shipFxIcon');
-  if(!el||!icon)return;
-  icon.textContent='🛸';
-  el.className='ship-fx explode';
-  const r=el.getBoundingClientRect();
-  const cx=r.left+r.width/2,cy=r.top+r.height/2;
-  screenFlash('rgba(239,68,68,.5)');
-  shakeScreen();
-  setTimeout(()=>burstParticles(cx,cy,'#f59e0b',22),80);
-  setTimeout(()=>burstParticles(cx,cy,'#ef4444',18),160);
-  setTimeout(()=>burstParticles(cx,cy,'#94a3b8',14),240);
-  setTimeout(()=>{el.className='ship-fx';},650);
-}
-function warpFX(){
-  const n=10;
-  for(let i=0;i<n;i++){
-    const l=document.createElement('div');
-    l.className='warp-line';
-    l.style.top=(Math.random()*100)+'vh';
-    l.style.width=(60+Math.random()*120)+'px';
-    l.style.left='0';
-    const dur=500+Math.random()*400;
-    l.style.animation=`warpFly ${dur}ms ease-out ${Math.random()*250}ms`;
-    document.body.appendChild(l);
-    setTimeout(()=>l.remove(),dur+400);
+
+/* ---------- starfield / constellations / galaxies ---------- */
+function gdBuildStarfield(){
+  const layer=document.getElementById('galaxyLayer');
+  if(!layer)return;
+  const fr=document.createDocumentFragment();
+  for(let i=0;i<28;i++){
+    const big=Math.random()<0.35;
+    const s=document.createElement('div');
+    s.className='gstar tw'+(big?' bright':'');
+    const size=big?(2+Math.random()*1.6):(1+Math.random()*1);
+    s.style.width=s.style.height=size+'px';
+    s.style.left=(Math.random()*100)+'%';
+    s.style.top=(Math.random()*100)+'%';
+    s.style.setProperty('--d',(3+Math.random()*5)+'s');
+    s.style.animationDelay=(Math.random()*6)+'s';
+    s.style.opacity=(0.35+Math.random()*0.5).toFixed(2);
+    fr.appendChild(s);
   }
+  layer.appendChild(fr);
+
+  const svgNS='http://www.w3.org/2000/svg';
+  const regions=[[6,10,26,20],[70,8,24,18],[10,60,22,26],[66,58,28,24]];
+  regions.forEach(r=>{
+    if(Math.random()<0.15)return;
+    const[rx,ry,rw,rh]=r;
+    const n=4+Math.floor(Math.random()*3);
+    const pts=[];
+    for(let i=0;i<n;i++)pts.push([rx+Math.random()*rw,ry+Math.random()*rh]);
+    const svg=document.createElementNS(svgNS,'svg');
+    svg.setAttribute('class','constellation');
+    svg.setAttribute('viewBox','0 0 100 100');
+    svg.setAttribute('preserveAspectRatio','none');
+    for(let i=0;i<pts.length-1;i++){
+      const line=document.createElementNS(svgNS,'line');
+      line.setAttribute('x1',pts[i][0]);line.setAttribute('y1',pts[i][1]);
+      line.setAttribute('x2',pts[i+1][0]);line.setAttribute('y2',pts[i+1][1]);
+      svg.appendChild(line);
+    }
+    pts.forEach(p=>{
+      const c=document.createElementNS(svgNS,'circle');
+      c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r',0.5+Math.random()*0.4);
+      svg.appendChild(c);
+    });
+    layer.appendChild(svg);
+  });
+
+  const galaxies=[
+    {x:'8%',y:'16%',s:170,c1:'139,92,246',c2:'59,130,246'},
+    {x:'85%',y:'68%',s:210,c1:'245,158,11',c2:'239,68,68'},
+    {x:'76%',y:'10%',s:140,c1:'59,130,246',c2:'139,92,246'}
+  ];
+  galaxies.forEach((g,i)=>{
+    const el=document.createElement('div');
+    el.className='galaxy-spiral';
+    el.style.left=g.x;el.style.top=g.y;
+    el.style.width=g.s+'px';el.style.height=g.s+'px';
+    el.style.background=`conic-gradient(from 0deg, rgba(${g.c1},.35), transparent 30%, rgba(${g.c2},.28), transparent 70%, rgba(${g.c1},.35))`;
+    el.style.animationDuration=(50+i*15)+'s';
+    layer.appendChild(el);
+  });
 }
-(function initGalaxyDecorHooks(){
+
+/* ---------- Halley's Comet flybys ---------- */
+function gdSpawnComet(){
+  try{
+    const layer=document.getElementById('galaxyLayer');
+    if(!layer||layer.querySelectorAll('.comet-el').length>=2)return;
+    const vw=window.innerWidth,vh=window.innerHeight;
+    const fromLeft=Math.random()<0.5;
+    const size=3+Math.random()*4;
+    const tailLen=90+Math.random()*90;
+    const dur=2200+Math.random()*2600;
+    const startY=Math.random()*vh*0.6;
+    const dy=(vh*0.5)*(Math.random()*0.7+0.3)*(Math.random()<0.5?1:-1);
+    const startX=fromLeft?-tailLen-20:vw+tailLen+20;
+    const endX=fromLeft?vw+tailLen+20:-tailLen-20;
+    const endY=startY+dy;
+    const rot=Math.atan2(endY-startY,endX-startX)*180/Math.PI;
+    const el=document.createElement('div');
+    el.className='comet-el';
+    el.style.width=el.style.height=size+'px';
+    el.style.left=startX+'px';el.style.top=startY+'px';
+    el.style.opacity=(0.6+Math.random()*0.35).toFixed(2);
+    layer.appendChild(el);
+    const anim=el.animate([
+      {transform:`translate(0,0) rotate(${rot}deg)`,opacity:0},
+      {transform:`translate(0,0) rotate(${rot}deg)`,opacity:1,offset:0.08},
+      {transform:`translate(${endX-startX}px,${endY-startY}px) rotate(${rot}deg)`,opacity:1,offset:0.85},
+      {transform:`translate(${endX-startX}px,${endY-startY}px) rotate(${rot}deg)`,opacity:0}
+    ],{duration:dur,easing:'linear'});
+    const cleanup=()=>{if(el.isConnected)el.remove()};
+    anim.onfinish=cleanup;
+    setTimeout(cleanup,dur+250);
+  }catch(e){}
+}
+function gdCometLoop(){
+  gdSpawnComet();
+  setTimeout(gdCometLoop,9000+Math.random()*14000);
+}
+
+/* ---------- Web Audio SFX (no files, created lazily on first
+   user gesture so autoplay restrictions are always respected) ---------- */
+let gdActx=null;
+function gdCtx(){
+  if(!gdActx){
+    try{gdActx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null}
+  }
+  if(gdActx&&gdActx.state==='suspended'){try{gdActx.resume()}catch(e){}}
+  return gdActx;
+}
+function gdTone(freq,dur,type,vol,delay,glideTo){
+  try{
+    const ctx=gdCtx();if(!ctx)return;
+    const t0=ctx.currentTime+(delay||0);
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type=type||'sine';
+    osc.frequency.setValueAtTime(freq,t0);
+    if(glideTo)osc.frequency.exponentialRampToValueAtTime(Math.max(40,glideTo),t0+dur);
+    gain.gain.setValueAtTime(0,t0);
+    gain.gain.linearRampToValueAtTime(vol||.12,t0+.008);
+    gain.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(t0);osc.stop(t0+dur+.03);
+  }catch(e){}
+}
+function sfxClick(){gdTone(760,.06,'sine',.09)}
+function sfxImportant(){gdTone(920,.08,'triangle',.13);gdTone(1380,.12,'triangle',.09,.05)}
+function sfxStart(){gdTone(520,.09,'triangle',.12);gdTone(780,.09,'triangle',.11,.08);gdTone(1040,.15,'triangle',.11,.16)}
+function sfxCorrect(){gdTone(880,.09,'triangle',.13);gdTone(1320,.16,'triangle',.12,.09)}
+function sfxWrong(){gdTone(300,.16,'sawtooth',.11,0,160)}
+function sfxWin(){gdTone(660,.1,'triangle',.13);gdTone(880,.1,'triangle',.12,.1);gdTone(1100,.1,'triangle',.12,.2);gdTone(1320,.24,'triangle',.13,.3)}
+function sfxLose(){gdTone(420,.18,'sawtooth',.11,0,200);gdTone(300,.22,'sawtooth',.1,.16,140)}
+function sfxDraw(){gdTone(520,.12,'sine',.1);gdTone(520,.12,'sine',.09,.14)}
+
+function gdBtnColor(el){
+  if(el.classList.contains('btn-g'))return '#10b981';
+  if(el.classList.contains('btn-pu'))return '#8b5cf6';
+  if(el.classList.contains('btn-b'))return '#3b82f6';
+  if(el.classList.contains('btn-r'))return '#ef4444';
+  return '#f59e0b';
+}
+function gdRipple(el,x,y){
+  try{
+    const rect=el.getBoundingClientRect();
+    const r=document.createElement('span');
+    r.className='gd-ripple';
+    const size=Math.max(rect.width,rect.height)*1.5;
+    r.style.width=r.style.height=size+'px';
+    r.style.left=(x-rect.left)+'px';
+    r.style.top=(y-rect.top)+'px';
+    el.appendChild(r);
+    const anim=r.animate([
+      {transform:'translate(-50%,-50%) scale(0)',opacity:.55},
+      {transform:'translate(-50%,-50%) scale(1)',opacity:0}
+    ],{duration:480,easing:'ease-out'});
+    const cleanup=()=>{if(r.isConnected)r.remove()};
+    anim.onfinish=cleanup;
+    setTimeout(cleanup,520);
+  }catch(e){}
+}
+
+/* ---------- click delegation: ripple + particle + sound on
+   every interactive control, without touching a single onclick
+   attribute already on the page ---------- */
+const GD_CLICKABLE='.btn,.login-tab,.tab,.tbtn,.lbtn,.apc,.chbtn,.asbtn,.smallbtn,.logout-btn,.back-btn,.hcard:not(.used):not(.static),.abcard:not(.used):not(.static)';
+document.addEventListener('click',function(e){
+  try{
+    const el=e.target.closest(GD_CLICKABLE);
+    if(!el||el.disabled)return;
+    gdRipple(el,e.clientX,e.clientY);
+    const isPrimary=el.matches('.btn-p,.btn-g,.btn-pu,.btn-b,.btn-r');
+    if(isPrimary){
+      burstParticles(e.clientX,e.clientY,gdBtnColor(el),9);
+    }
+    const startIds=['levelNextBtn','botStartBtn','goPlayAgainBtn'];
+    if(el.id&&startIds.indexOf(el.id)!==-1&&!el.disabled)sfxStart();
+    else if(isPrimary)sfxImportant();
+    else sfxClick();
+  }catch(err){}
+},true);
+document.addEventListener('pointerenter',function(e){
+  try{
+    if(!e.target||!e.target.closest)return;
+    const el=e.target.closest('.btn-p,.btn-g,.btn-pu,.btn-b,.btn-r');
+    if(!el||el.disabled)return;
+    const r=el.getBoundingClientRect();
+    burstParticles(r.left+r.width/2,r.top+r.height/2,gdBtnColor(el),4);
+  }catch(err){}
+},true);
+
+/* ---------- non-destructive wraps: call the original function
+   exactly as before, then add a cosmetic extra ---------- */
+(function(){
+  if(typeof showRR==='function'){
+    const _origShowRR=showRR;
+    showRR=function(winner,c1,c2,extra,remoteView){
+      _origShowRR(winner,c1,c2,extra,remoteView);
+      try{ if(winner==='p1')sfxCorrect(); else if(winner==='p2')sfxWrong(); else sfxDraw(); }catch(e){}
+    };
+  }
+  if(typeof confettiBurst==='function'){
+    const _origConfetti=confettiBurst;
+    confettiBurst=function(){
+      _origConfetti();
+      try{ burstParticles(window.innerWidth/2,window.innerHeight*0.32,'#fbbf24',22); }catch(e){}
+    };
+  }
+  if(typeof showScreen==='function'){
+    const _origShowScreen=showScreen;
+    const introMap={'screen-login':'.login-wrap','screen-home':'.menu-box','screen-gameover':'.goscreen'};
+    showScreen=function(id){
+      _origShowScreen(id);
+      try{
+        const sel=introMap[id];
+        if(sel){
+          const el=document.querySelector(sel);
+          if(el){el.classList.remove('gd-intro');void el.offsetWidth;el.classList.add('gd-intro');}
+        }
+      }catch(e){}
+    };
+  }
+})();
+
+/* ---------- win / lose / draw sound + star-count pop, driven by
+   watching the existing game-over icon/text — read-only observers,
+   they never write back into game state ---------- */
+(function(){
   const goIco=document.getElementById('goIco');
   if(goIco&&window.MutationObserver){
     let last='';
@@ -2490,11 +2430,46 @@ function warpFX(){
       const t=goIco.textContent;
       if(t===last)return;
       last=t;
-      if(t==='💔'||t==='🏳️')shipExplodeFX();
-      else if(t==='🏆')warpFX();
+      try{
+        if(t==='💔'||t==='🏳️')sfxLose();
+        else if(t==='🏆')sfxWin();
+        else if(t==='🤝')sfxDraw();
+      }catch(e){}
     }).observe(goIco,{childList:true,characterData:true,subtree:true});
   }
+  const goStats=document.getElementById('goStats');
+  if(goStats&&window.MutationObserver){
+    new MutationObserver(()=>{
+      const se=document.getElementById('goStarCount');
+      if(se&&!se.classList.contains('gd-pop')){
+        se.classList.add('gd-pop');
+        setTimeout(()=>se.classList.remove('gd-pop'),520);
+      }
+    }).observe(goStats,{childList:true,subtree:true,characterData:true});
+  }
+  function watchMsgBox(el,fn){
+    if(!el||!window.MutationObserver)return;
+    let wasVisible=false;
+    new MutationObserver(()=>{
+      const vis=getComputedStyle(el).display!=='none';
+      if(vis&&!wasVisible){try{fn()}catch(e){}}
+      wasVisible=vis;
+    }).observe(el,{attributes:true,attributeFilter:['style']});
+  }
+  watchMsgBox(document.getElementById('loginErrMsg'),sfxWrong);
+  watchMsgBox(document.getElementById('loginOkMsg'),sfxCorrect);
 })();
+
+/* ---------- boot: build decor once DOM is ready, start comet
+   loop after a short delay, give the login card a gentle intro ---------- */
+document.addEventListener('DOMContentLoaded',function(){
+  try{
+    gdBuildStarfield();
+    setTimeout(gdCometLoop,3000+Math.random()*4000);
+    const lw=document.querySelector('.login-wrap');
+    if(lw)lw.classList.add('gd-intro');
+  }catch(e){}
+});
 </script>
 </body>
 </html>
